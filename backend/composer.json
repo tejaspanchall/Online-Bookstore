@@ -1,0 +1,15 @@
+{
+    "name": "shahd/backend",
+    "autoload": {
+        "psr-4": {
+            "Shahd\\Backend\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Tejas Panchal",
+            "email": "tejaspanchal127@gmail.com"
+        }
+    ],
+    "require": {}
+}
