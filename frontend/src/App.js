@@ -1,25 +1,23 @@
-import logo from './logo.svg';
-import './App.css';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'; // Add Navigate here
+import Register from './components/auth/Register.jsx';
+import Login from './components/auth/Login.jsx';
+import ForgotPassword from './components/auth/ForgotPassword.jsx';
+import BookCatalog from './components/books/BookCatalog.jsx';
+import AddBook from './components/books/AddBook.jsx';
+import MyLibrary from './components/books/MyLibrary.jsx';
 
-function App() {
+export default function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Navigate to="/register" />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/catalog" element={<BookCatalog />} />
+        <Route path="/add-book" element={<AddBook />} />
+        <Route path="/my-library" element={<MyLibrary />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
-
-export default App;
