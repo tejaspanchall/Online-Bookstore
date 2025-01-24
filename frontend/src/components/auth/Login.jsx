@@ -15,6 +15,7 @@ export default function Login() {
       const res = await fetch('http://localhost/online-bookstore/backend/api/auth/login.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include', // <-- Add this line
         body: JSON.stringify(form)
       });
       

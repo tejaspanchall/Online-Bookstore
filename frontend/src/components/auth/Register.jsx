@@ -30,7 +30,7 @@ export default function Register() {
       if (res.ok) {
         navigate('/login');
       } else {
-        alert(data.error || 'Registration failed');
+        alert(data.error || `Registration failed: ${JSON.stringify(data)}`);
       }
     } catch (error) {
       alert('Registration failed');

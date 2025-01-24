@@ -13,7 +13,7 @@ if ($user) {
     $stmt = $pdo->prepare("UPDATE users SET reset_token = ? WHERE email = ?");
     $stmt->execute([$reset_token, $email]);
     
-    // In production, send email with reset link
+    // In production: Send email with reset link
     echo json_encode(['status' => 'success', 'message' => 'Reset instructions sent']);
 } else {
     http_response_code(404);

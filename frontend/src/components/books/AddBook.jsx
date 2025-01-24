@@ -13,6 +13,14 @@ export default function AddBook() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // In handleSubmit function
+    const res = await fetch('http://localhost/online-bookstore/backend/api/books/add.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include', // <-- Added credentials
+      body: JSON.stringify(book)
+    });
     
     try {
       const res = await fetch('http://localhost/online-bookstore/backend/api/books/add.php', {

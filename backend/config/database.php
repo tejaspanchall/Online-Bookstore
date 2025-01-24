@@ -1,10 +1,10 @@
-// config/database.php
 <?php
+// config/database.php
 $db_config = [
     'host' => 'localhost',
     'dbname' => 'bookstore',
     'user' => 'postgres',
-    'password' => 'your_password'
+    'password' => 'root'
 ];
 
 try {
@@ -18,7 +18,8 @@ try {
     die("Connection failed: " . $e->getMessage());
 }
 
-// Enable CORS
+// Set CORS headers
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE');
 header('Access-Control-Allow-Headers: Content-Type');
+header('Access-Control-Allow-Credentials: true');

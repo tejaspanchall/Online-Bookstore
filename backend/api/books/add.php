@@ -9,8 +9,12 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 $data = json_decode(file_get_contents('php://input'), true);
-$stmt = $pdo->prepare("INSERT INTO books (title, image, description, isbn, author) VALUES (?, ?, ?, ?, ?)");
+
 try {
+    $pdo->beginTransaction();
+    
+    // Insert book
+    $stmt = $pdo->prepare("INSERT INTO books (title, image, description, isbn, author) VALUES (?, ?, ?, ?, ?)");
     $stmt->execute([
         $data['title'],
         $data['image'],
@@ -18,8 +22,16 @@ try {
         $data['isbn'],
         $data['author']
     ]);
-    echo json_encode(['status' => 'success', 'id' => $pdo->lastInsertId()]);
+    $bookId = $pdo->lastInsertId();
+    
+    // Link to user
+    $stmt = $pdo->prepare("INSERT INTO user_books (user_id, book_id) VALUES (?, ?)");
+    $stmt->execute([$_SESSION['user_id'], $bookId]);
+    
+    $pdo->commit();
+    echo json_encode(['status' => 'success', 'id' => $bookId]);
 } catch(PDOException $e) {
+    $pdo->rollBack();
     http_response_code(400);
-    echo json_encode(['error' => $e->getMessage()]);
+    echo json_encode(['error' => 'Failed to add book']);
 }
