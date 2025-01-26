@@ -13,19 +13,11 @@ export default function AddBook() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // In handleSubmit function
-    const res = await fetch('http://localhost/online-bookstore/backend/api/books/add.php', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include', // <-- Added credentials
-      body: JSON.stringify(book)
-    });
-    
     try {
       const res = await fetch('http://localhost/online-bookstore/backend/api/books/add.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify(book)
       });
       
@@ -41,51 +33,55 @@ export default function AddBook() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-md mx-auto mt-8">
-      <input 
-        type="text"
-        placeholder="Title"
-        value={book.title}
-        onChange={e => setBook({...book, title: e.target.value})}
-        required
-        className="block w-full mb-4 p-2 border rounded"
-      />
-      <input 
-        type="text"
-        placeholder="Image URL"
-        value={book.image}
-        onChange={e => setBook({...book, image: e.target.value})}
-        className="block w-full mb-4 p-2 border rounded"
-      />
-      <textarea
-        placeholder="Description"
-        value={book.description}
-        onChange={e => setBook({...book, description: e.target.value})}
-        required
-        className="block w-full mb-4 p-2 border rounded"
-      />
-      <input 
-        type="text"
-        placeholder="ISBN"
-        value={book.isbn}
-        onChange={e => setBook({...book, isbn: e.target.value})}
-        required
-        className="block w-full mb-4 p-2 border rounded"
-      />
-      <input 
-        type="text"
-        placeholder="Author"
-        value={book.author}
-        onChange={e => setBook({...book, author: e.target.value})}
-        required
-        className="block w-full mb-4 p-2 border rounded"
-      />
-      <button 
-        type="submit"
-        className="w-full p-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-      >
-        Add Book
-      </button>
-    </form>
+    <div className="max-w-md mx-auto mt-8">
+      <h2 className="text-2xl font-bold mb-6">Add New Book</h2>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <input 
+          type="text"
+          placeholder="Title"
+          value={book.title}
+          onChange={e => setBook({...book, title: e.target.value})}
+          required
+          className="w-full p-2 bg-gray-800 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+        <input 
+          type="text"
+          placeholder="Image URL"
+          value={book.image}
+          onChange={e => setBook({...book, image: e.target.value})}
+          className="w-full p-2 bg-gray-800 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+        <textarea
+          placeholder="Description"
+          value={book.description}
+          onChange={e => setBook({...book, description: e.target.value})}
+          required
+          className="w-full p-2 bg-gray-800 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+          rows="4"
+        />
+        <input 
+          type="text"
+          placeholder="ISBN"
+          value={book.isbn}
+          onChange={e => setBook({...book, isbn: e.target.value})}
+          required
+          className="w-full p-2 bg-gray-800 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+        <input 
+          type="text"
+          placeholder="Author"
+          value={book.author}
+          onChange={e => setBook({...book, author: e.target.value})}
+          required
+          className="w-full p-2 bg-gray-800 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+        <button 
+          type="submit"
+          className="w-full p-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+        >
+          Add Book
+        </button>
+      </form>
+    </div>
   );
 }

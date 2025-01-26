@@ -1,14 +1,12 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import AuthForm from './AuthForm';
 
 export default function ForgotPassword() {
-  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
     try {
       const res = await fetch('http://localhost/online-bookstore/backend/api/auth/forgot-password.php', {
         method: 'POST',
@@ -17,7 +15,6 @@ export default function ForgotPassword() {
       });
       
       const data = await res.json();
-      
       if (res.ok) {
         setMessage('Reset instructions sent to your email');
       } else {
@@ -29,39 +26,32 @@ export default function ForgotPassword() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="bg-white p-8 rounded shadow-md w-96">
-        <h2 className="text-2xl mb-6 text-center">Forgot Password</h2>
-        <form onSubmit={handleSubmit}>
-          <input 
-            type="email"
-            placeholder="Enter your email"
-            value={email}
-            onChange={e => setEmail(e.target.value)}
-            required
-            className="w-full p-2 mb-4 border rounded"
-          />
-          <button 
-            type="submit"
-            className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
-          >
-            Reset Password
-          </button>
-        </form>
-        {message && (
-          <p className={`mt-4 text-center ${message.includes('error') ? 'text-red-500' : 'text-green-500'}`}>
-            {message}
-          </p>
-        )}
-        <div className="mt-4 text-center">
-          <a 
-            href="/login" 
-            className="text-blue-500 hover:underline"
-          >
-            Back to Login
-          </a>
-        </div>
-      </div>
-    </div>
+    <AuthForm 
+      onSubmit={handleSubmit} 
+      title="Forgot Password"
+      footerLink={{ to: '/login', text: 'Back to Login' }}
+    >
+      <input 
+        type="email"
+        placeholder="Enter your email"
+        value={email}
+        onChange={e => setEmail(e.target.value)}
+        required
+        className="w-full p-2 bg-gray-700 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+      />
+      <button 
+        type="submit"
+        className="w-full bg-blue-600 hover:bg-blue-700 text-white p-2 rounded"
+      >
+        Reset Password
+      </button>
+      {message && (
+        <p className={`text-center mt-4 ${
+          message.includes('sent') ? 'text-green-400' : 'text-red-400'
+        }`}>
+          {message}
+        </p>
+      )}
+    </AuthForm>
   );
 }

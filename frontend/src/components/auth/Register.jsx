@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import AuthForm from './AuthForm';
 
 export default function Register() {
   const navigate = useNavigate();
@@ -17,7 +18,7 @@ export default function Register() {
       alert('Emails must match');
       return;
     }
-    
+
     try {
       const res = await fetch('http://localhost/online-bookstore/backend/api/auth/register.php', {
         method: 'POST',
@@ -26,11 +27,10 @@ export default function Register() {
       });
       
       const data = await res.json();
-      
       if (res.ok) {
         navigate('/login');
       } else {
-        alert(data.error || `Registration failed: ${JSON.stringify(data)}`);
+        alert(data.error || 'Registration failed');
       }
     } catch (error) {
       alert('Registration failed');
@@ -38,16 +38,19 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <form onSubmit={handleSubmit} className="bg-white p-8 rounded shadow-md w-96">
-        <h2 className="text-2xl mb-6 text-center">Register</h2>
+    <AuthForm 
+      onSubmit={handleSubmit} 
+      title="Register"
+      footerLink={{ to: '/login', text: 'Already have an account? Login' }}
+    >
+      <div className="grid grid-cols-2 gap-4">
         <input 
           type="text"
           placeholder="First Name"
           value={form.firstname}
           onChange={e => setForm({...form, firstname: e.target.value})}
           required
-          className="w-full p-2 mb-4 border rounded"
+          className="w-full p-2 bg-gray-700 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <input 
           type="text"
@@ -55,39 +58,39 @@ export default function Register() {
           value={form.lastname}
           onChange={e => setForm({...form, lastname: e.target.value})}
           required
-          className="w-full p-2 mb-4 border rounded"
+          className="w-full p-2 bg-gray-700 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
-        <input 
-          type="email"
-          placeholder="Email"
-          value={form.email}
-          onChange={e => setForm({...form, email: e.target.value})}
-          required
-          className="w-full p-2 mb-4 border rounded"
-        />
-        <input 
-          type="email"
-          placeholder="Confirm Email"
-          value={form.confirmEmail}
-          onChange={e => setForm({...form, confirmEmail: e.target.value})}
-          required
-          className="w-full p-2 mb-4 border rounded"
-        />
-        <input 
-          type="password"
-          placeholder="Password"
-          value={form.password}
-          onChange={e => setForm({...form, password: e.target.value})}
-          required
-          className="w-full p-2 mb-4 border rounded"
-        />
-        <button 
-          type="submit"
-          className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
-        >
-          Register
-        </button>
-      </form>
-    </div>
+      </div>
+      <input 
+        type="email"
+        placeholder="Email"
+        value={form.email}
+        onChange={e => setForm({...form, email: e.target.value})}
+        required
+        className="w-full p-2 bg-gray-700 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+      />
+      <input 
+        type="email"
+        placeholder="Confirm Email"
+        value={form.confirmEmail}
+        onChange={e => setForm({...form, confirmEmail: e.target.value})}
+        required
+        className="w-full p-2 bg-gray-700 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+      />
+      <input 
+        type="password"
+        placeholder="Password"
+        value={form.password}
+        onChange={e => setForm({...form, password: e.target.value})}
+        required
+        className="w-full p-2 bg-gray-700 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+      />
+      <button 
+        type="submit"
+        className="w-full bg-blue-600 hover:bg-blue-700 text-white p-2 rounded"
+      >
+        Register
+      </button>
+    </AuthForm>
   );
 }
