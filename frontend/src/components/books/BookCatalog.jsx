@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import BookCard from './BookCard';
 import BookPopup from './BookPopup';
 
@@ -44,16 +45,19 @@ export default function BookCatalog() {
   return (
     <div className="container mx-auto p-4">
       <div className="mb-6 flex gap-2">
-        <input
-          type="text"
-          placeholder="Search books..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="bg-gray-800 text-white p-2 rounded flex-1 border border-gray-700 focus:outline-none focus:border-blue-500"
-        />
+        <div className="flex-1 relative">
+          <input
+            type="text"
+            placeholder="Search books..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="bg-dark-2 text-white p-2 rounded flex-1 border border-dark-3 focus:outline-none focus:border-primary pr-12"
+          />
+          <MagnifyingGlassIcon className="w-5 h-5 text-gray-400 absolute right-4 top-1/2 -translate-y-1/2" />
+        </div>
         <button 
           onClick={searchBooks}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+          className="bg-primary hover:bg-secondary text-white px-4 py-2 rounded"
         >
           Search
         </button>
