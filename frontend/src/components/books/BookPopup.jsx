@@ -1,43 +1,48 @@
-export default function BookPopup({ book, onClose }) {
+import { X } from 'react-bootstrap-icons';
+
+export default function BookPopup({ book, onClose, onAddToLibrary }) {
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-dark-2 rounded-2xl p-8 max-w-3xl w-full border border-dark-3 shadow-2xl">
-        <div className="flex flex-col lg:flex-row gap-8">
-          <img
-            src={book.image}
-            alt={book.title}
-            className="lg:w-1/3 h-80 object-cover rounded-xl"
-          />
-          
-          <div className="flex-1 space-y-4">
-            <div className="flex justify-between items-start">
-              <h2 className="text-3xl font-bold">{book.title}</h2>
-              <button
-                onClick={onClose}
-                className="text-gray-400 hover:text-white"
-              >
-                <XMarkIcon className="w-8 h-8" />
-              </button>
+    <div className="modal show d-block" tabIndex="-1">
+      <div className="modal-dialog modal-xl modal-dialog-centered">
+        <div className="modal-content">
+          <div className="modal-header border-0">
+            <button 
+              onClick={onClose} 
+              className="btn-close btn-close-white position-absolute end-0 top-0 m-3"
+            ></button>
+          </div>
+          <div className="modal-body">
+            <div className="row g-5">
+              <div className="col-md-5">
+                <img
+                  src={book.image || 'https://via.placeholder.com/400x600?text=Book+Cover'}
+                  alt={book.title}
+                  className="img-fluid rounded-3 shadow"
+                />
+              </div>
+              <div className="col-md-7">
+                <h2 className="display-5 fw-bold mb-4">{book.title}</h2>
+                <div className="d-flex gap-3 mb-4">
+                  <span className="badge bg-primary fs-6">{book.author}</span>
+                  <span className="badge bg-secondary fs-6">ISBN: {book.isbn}</span>
+                </div>
+                <p className="lead">{book.description}</p>
+              </div>
             </div>
-            
-            <div className="space-y-2">
-              <p className="text-lg text-gray-300">by {book.author}</p>
-              <p className="text-sm text-primary font-mono">ISBN: {book.isbn}</p>
-            </div>
-
-            <p className="text-gray-300 leading-relaxed">{book.description}</p>
-
-            <div className="flex gap-4 pt-6">
-              <button className="btn-primary flex-1">
-                Add to Library
-              </button>
-              <button
-                onClick={onClose}
-                className="bg-dark-3 hover:bg-dark-2 text-white px-6 py-3 rounded-lg"
-              >
-                Close
-              </button>
-            </div>
+          </div>
+          <div className="modal-footer border-0 justify-content-start px-4 pb-4">
+            <button 
+              className="btn btn-lg btn-primary px-5 py-3"
+              onClick={onAddToLibrary}
+            >
+              Add to Library
+            </button>
+            <button 
+              className="btn btn-lg btn-outline-light px-5 py-3 ms-3"
+              onClick={onClose}
+            >
+              Close
+            </button>
           </div>
         </div>
       </div>

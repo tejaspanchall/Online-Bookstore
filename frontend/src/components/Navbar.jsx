@@ -1,46 +1,67 @@
 import { Link, NavLink } from 'react-router-dom';
+import { PersonFill, JournalBookmark, PlusCircle } from 'react-bootstrap-icons';
 
 export default function Navbar() {
   const isLoggedIn = !!localStorage.getItem('user');
 
-  const handleLogout = () => {
-    localStorage.removeItem('user');
-    window.location.href = '/login';
+  const handleLogout = async () => {
+    try {
+      await fetch('http://localhost/online-bookstore/backend/api/auth/logout.php', {
+        method: 'POST',
+        credentials: 'include',
+      });
+      localStorage.removeItem('user');
+      window.location.href = '/login';
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
   };
-  
+
   return (
-    <nav className="bg-dark-2 border-b border-dark-3">
-      <div className="container mx-auto px-4 py-3 flex items-center justify-between">
-        <Link to="/catalog" className="text-2xl font-bold text-primary">
+    <nav className="navbar navbar-expand-lg navbar-dark custom-navbar py-3">
+      <div className="container">
+        <Link to="/catalog" className="navbar-brand fw-bold fs-4">
+          <JournalBookmark className="me-2" />
           BookVerse
         </Link>
         
-        <div className="flex items-center gap-6">
-          {isLoggedIn ? (
-            <>
-              <NavLink to="/my-library" className="hover:text-primary">
-                My Library
-              </NavLink>
-              <NavLink to="/add-book" className="btn-primary px-4 py-2">
-                Add Book
-              </NavLink>
-              <button
-                onClick={handleLogout}
-                className="text-red-400 hover:text-red-300"
-              >
-                Logout
-              </button>
-            </>
-          ) : (
-            <>
-              <NavLink to="/login" className="hover:text-primary">
-                Login
-              </NavLink>
-              <NavLink to="/register" className="btn-primary px-4 py-2">
-                Get Started
-              </NavLink>
-            </>
-          )}
+        <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+          <span className="navbar-toggler-icon"></span>
+        </button>
+
+        <div className="collapse navbar-collapse" id="navbarNav">
+          <ul className="navbar-nav ms-auto align-items-center gap-3">
+            {isLoggedIn ? (
+              <>
+                <li className="nav-item">
+                  <NavLink to="/my-library" className="nav-link d-flex align-items-center gap-1">
+                    <PersonFill /> My Library
+                  </NavLink>
+                </li>
+                <li className="nav-item">
+                  <NavLink to="/add-book" className="btn btn-primary d-flex align-items-center gap-1">
+                    <PlusCircle /> Add Book
+                  </NavLink>
+                </li>
+                <li className="nav-item">
+                  <button onClick={handleLogout} className="btn btn-link nav-link text-danger">
+                    Logout
+                  </button>
+                </li>
+              </>
+            ) : (
+              <>
+                <li className="nav-item">
+                  <NavLink to="/login" className="nav-link">Login</NavLink>
+                </li>
+                <li className="nav-item">
+                  <NavLink to="/register" className="btn btn-primary">
+                    Get Started
+                  </NavLink>
+                </li>
+              </>
+            )}
+          </ul>
         </div>
       </div>
     </nav>

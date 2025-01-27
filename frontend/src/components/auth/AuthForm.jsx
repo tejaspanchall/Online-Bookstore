@@ -2,15 +2,19 @@ import { Link } from 'react-router-dom';
 
 export default function AuthForm({ children, onSubmit, title, footerLink }) {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-900">
-      <form onSubmit={onSubmit} className="bg-gray-800 p-8 rounded-lg shadow-xl w-96">
-        <h2 className="text-2xl mb-6 text-center font-bold">{title}</h2>
-        <div className="space-y-4">
+    <div className="min-vh-100 d-flex align-items-center justify-content-center">
+      <form 
+        onSubmit={onSubmit} 
+        className="auth-card p-5 text-white" 
+        style={{width: '100%', maxWidth: '450px'}}
+      >
+        <h2 className="mb-4 text-center display-6 fw-bold">{title}</h2>
+        <div className="mb-4">
           {children}
         </div>
         {footerLink && (
-          <div className="text-center pt-4">
-            <Link to={footerLink.to} className="text-blue-400 hover:text-blue-300 text-sm">
+          <div className="text-center pt-3">
+            <Link to={footerLink.to} className="text-decoration-none text-white">
               {footerLink.text}
             </Link>
           </div>

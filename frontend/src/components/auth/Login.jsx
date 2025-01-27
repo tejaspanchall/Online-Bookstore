@@ -34,26 +34,27 @@ export default function Login() {
       title="Login"
       footerLink={{ to: '/forgot-password', text: 'Forgot Password?' }}
     >
-      <input 
-        type="email"
-        placeholder="Email"
-        value={form.email}
-        onChange={e => setForm({...form, email: e.target.value})}
-        required
-        className="w-full p-2 bg-gray-700 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-      />
-      <input 
-        type="password"
-        placeholder="Password"
-        value={form.password}
-        onChange={e => setForm({...form, password: e.target.value})}
-        required
-        className="w-full p-2 bg-gray-700 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-      />
-      <button 
-        type="submit"
-        className="w-full bg-blue-600 hover:bg-blue-700 text-white p-2 rounded"
-      >
+      <div className="mb-3">
+        <input
+          type="email"
+          className="form-control"
+          placeholder="Email"
+          value={form.email}
+          onChange={e => setForm({...form, email: e.target.value})}
+          required
+        />
+      </div>
+      <div className="mb-3">
+        <input
+          type="password"
+          className="form-control"
+          placeholder="Password"
+          value={form.password}
+          onChange={e => setForm({...form, password: e.target.value})}
+          required
+        />
+      </div>
+      <button type="submit" className="btn btn-primary w-100">
         Login
       </button>
     </AuthForm>

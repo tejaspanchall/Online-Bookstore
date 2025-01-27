@@ -43,51 +43,65 @@ export default function Register() {
       title="Register"
       footerLink={{ to: '/login', text: 'Already have an account? Login' }}
     >
-      <div className="grid grid-cols-2 gap-4">
+      <div className="row g-3">
+        <div className="col-md-6">
+          <input 
+            type="text"
+            className="form-control bg-dark text-white"
+            placeholder="First Name"
+            value={form.firstname}
+            onChange={e => setForm({...form, firstname: e.target.value})}
+            required
+          />
+        </div>
+        <div className="col-md-6">
+          <input 
+            type="text"
+            className="form-control bg-dark text-white"
+            placeholder="Last Name"
+            value={form.lastname}
+            onChange={e => setForm({...form, lastname: e.target.value})}
+            required
+          />
+        </div>
+      </div>
+
+      <div className="mt-3">
         <input 
-          type="text"
-          placeholder="First Name"
-          value={form.firstname}
-          onChange={e => setForm({...form, firstname: e.target.value})}
+          type="email"
+          className="form-control bg-dark text-white"
+          placeholder="Email"
+          value={form.email}
+          onChange={e => setForm({...form, email: e.target.value})}
           required
-          className="w-full p-2 bg-gray-700 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        <input 
-          type="text"
-          placeholder="Last Name"
-          value={form.lastname}
-          onChange={e => setForm({...form, lastname: e.target.value})}
-          required
-          className="w-full p-2 bg-gray-700 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       </div>
-      <input 
-        type="email"
-        placeholder="Email"
-        value={form.email}
-        onChange={e => setForm({...form, email: e.target.value})}
-        required
-        className="w-full p-2 bg-gray-700 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-      />
-      <input 
-        type="email"
-        placeholder="Confirm Email"
-        value={form.confirmEmail}
-        onChange={e => setForm({...form, confirmEmail: e.target.value})}
-        required
-        className="w-full p-2 bg-gray-700 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-      />
-      <input 
-        type="password"
-        placeholder="Password"
-        value={form.password}
-        onChange={e => setForm({...form, password: e.target.value})}
-        required
-        className="w-full p-2 bg-gray-700 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-      />
+
+      <div className="mt-3">
+        <input 
+          type="email"
+          className="form-control bg-dark text-white"
+          placeholder="Confirm Email"
+          value={form.confirmEmail}
+          onChange={e => setForm({...form, confirmEmail: e.target.value})}
+          required
+        />
+      </div>
+
+      <div className="mt-3">
+        <input 
+          type="password"
+          className="form-control bg-dark text-white"
+          placeholder="Password"
+          value={form.password}
+          onChange={e => setForm({...form, password: e.target.value})}
+          required
+        />
+      </div>
+
       <button 
         type="submit"
-        className="w-full bg-blue-600 hover:bg-blue-700 text-white p-2 rounded"
+        className="btn btn-primary w-100 mt-4 py-2"
       >
         Register
       </button>

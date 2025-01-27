@@ -11,6 +11,16 @@ $user = $stmt->fetch();
 
 if ($user && password_verify($password, $user['password'])) {
     session_start();
+
+    session_set_cookie_params([
+        'lifetime' => 86400,
+        'path' => '/',
+        'domain' => 'localhost',
+        'secure' => false,
+        'httponly' => true,
+        'samesite' => 'Lax'
+    ]);
+    
     $_SESSION['user_id'] = $user['id'];
     echo json_encode(['status' => 'success', 'user' => [
         'id' => $user['id'],
