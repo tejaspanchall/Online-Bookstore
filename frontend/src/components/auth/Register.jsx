@@ -14,26 +14,36 @@ export default function Register() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Client-side validation
     if (form.email !== form.confirmEmail) {
-      alert('Emails must match');
+      alert('Emails do not match');
       return;
     }
-
+  
     try {
       const res = await fetch('http://localhost/online-bookstore/backend/api/auth/register.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form)
+        credentials: 'include', // Add this line
+        body: JSON.stringify({
+          firstname: form.firstname,
+          lastname: form.lastname,
+          email: form.email,
+          password: form.password
+        })
       });
-      
+  
       const data = await res.json();
+      
       if (res.ok) {
+        alert('Registration successful! Please login');
         navigate('/login');
       } else {
         alert(data.error || 'Registration failed');
       }
     } catch (error) {
-      alert('Registration failed');
+      alert('Failed to connect to server');
     }
   };
 

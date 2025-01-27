@@ -5,6 +5,7 @@ import AuthForm from './AuthForm';
 export default function Login() {
   const navigate = useNavigate();
   const [form, setForm] = useState({ email: '', password: '' });
+  const [error, setError] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -13,47 +14,57 @@ export default function Login() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify(form)
+        body: JSON.stringify({
+          email: form.email,
+          password: form.password
+        })
       });
-      
+
       const data = await res.json();
-      if (res.ok) {
-        localStorage.setItem('user', JSON.stringify(data.user));
-        navigate('/catalog');
-      } else {
-        alert(data.error || 'Login failed');
+      
+      if (!res.ok) {
+        setError(data.error || 'Login failed');
+        return;
       }
+
+      localStorage.setItem('user', JSON.stringify(data.user));
+      navigate('/catalog');
+      
     } catch (error) {
-      alert('Login failed');
+      setError('Failed to connect to server');
     }
   };
 
   return (
     <AuthForm 
       onSubmit={handleSubmit} 
-      title="Login"
+      title="Login" 
       footerLink={{ to: '/forgot-password', text: 'Forgot Password?' }}
     >
+      {error && <div className="alert alert-danger">{error}</div>}
+      
       <div className="mb-3">
-        <input
-          type="email"
-          className="form-control"
-          placeholder="Email"
-          value={form.email}
-          onChange={e => setForm({...form, email: e.target.value})}
-          required
-        />
-      </div>
-      <div className="mb-3">
-        <input
-          type="password"
-          className="form-control"
-          placeholder="Password"
-          value={form.password}
-          onChange={e => setForm({...form, password: e.target.value})}
-          required
-        />
-      </div>
+  <input
+    type="email"
+    className="form-control bg-dark text-white"
+    placeholder="Email"
+    value={form.email}
+    onChange={e => setForm({...form, email: e.target.value})}
+    required
+  />
+</div>
+
+<div className="mb-3">
+  <input
+    type="password"
+    className="form-control bg-dark text-white"
+    placeholder="Password"
+    value={form.password}
+    onChange={e => setForm({...form, password: e.target.value})}
+    required
+  />
+</div>
+      
       <button type="submit" className="btn btn-primary w-100">
         Login
       </button>
