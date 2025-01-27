@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import AuthForm from '../auth/AuthForm';
 
 export default function AddBook() {
   const navigate = useNavigate();
@@ -8,8 +9,9 @@ export default function AddBook() {
     image: '',
     description: '',
     isbn: '',
-    author: ''
+    author: '',
   });
+  const [message, setMessage] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -18,70 +20,88 @@ export default function AddBook() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify(book)
+        body: JSON.stringify(book),
       });
-      
+
+      const data = await res.json();
       if (res.ok) {
-        navigate('/my-library');
+        setMessage('Book added successfully!');
+        setTimeout(() => navigate('/my-library'), 2000); // Redirect after 2 seconds
       } else {
-        const data = await res.json();
-        alert(data.error);
+        setMessage(data.error || 'Failed to add book');
       }
     } catch (error) {
-      alert('Failed to add book');
+      setMessage('Failed to connect to server');
     }
   };
 
   return (
-    <div className="max-w-md mx-auto mt-8">
-      <h2 className="text-2xl font-bold mb-6">Add New Book</h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <input 
+    <AuthForm
+      onSubmit={handleSubmit}
+      title="Add New Book"
+      footerLink={{ to: '/my-library', text: 'Back to My Library' }}
+    >
+      <div className="mb-3">
+        <input
           type="text"
+          className="form-control bg-dark text-white"
           placeholder="Title"
           value={book.title}
-          onChange={e => setBook({...book, title: e.target.value})}
+          onChange={(e) => setBook({ ...book, title: e.target.value })}
           required
-          className="w-full p-2 bg-gray-800 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
-        <input 
+      </div>
+      <div className="mb-3">
+        <input
           type="text"
+          className="form-control bg-dark text-white"
           placeholder="Image URL"
           value={book.image}
-          onChange={e => setBook({...book, image: e.target.value})}
-          className="w-full p-2 bg-gray-800 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+          onChange={(e) => setBook({ ...book, image: e.target.value })}
         />
+      </div>
+      <div className="mb-3">
         <textarea
+          className="form-control bg-dark text-white"
           placeholder="Description"
           value={book.description}
-          onChange={e => setBook({...book, description: e.target.value})}
+          onChange={(e) => setBook({ ...book, description: e.target.value })}
           required
-          className="w-full p-2 bg-gray-800 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
           rows="4"
         />
-        <input 
+      </div>
+      <div className="mb-3">
+        <input
           type="text"
+          className="form-control bg-dark text-white"
           placeholder="ISBN"
           value={book.isbn}
-          onChange={e => setBook({...book, isbn: e.target.value})}
+          onChange={(e) => setBook({ ...book, isbn: e.target.value })}
           required
-          className="w-full p-2 bg-gray-800 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
-        <input 
+      </div>
+      <div className="mb-3">
+        <input
           type="text"
+          className="form-control bg-dark text-white"
           placeholder="Author"
           value={book.author}
-          onChange={e => setBook({...book, author: e.target.value})}
+          onChange={(e) => setBook({ ...book, author: e.target.value })}
           required
-          className="w-full p-2 bg-gray-800 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
-        <button 
-          type="submit"
-          className="w-full p-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+      </div>
+      <button type="submit" className="btn btn-primary w-100 py-2">
+        Add Book
+      </button>
+      {message && (
+        <div
+          className={`mt-3 alert ${
+            message.includes('successfully') ? 'alert-success' : 'alert-danger'
+          }`}
         >
-          Add Book
-        </button>
-      </form>
-    </div>
+          {message}
+        </div>
+      )}
+    </AuthForm>
   );
 }

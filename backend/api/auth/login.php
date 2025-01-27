@@ -35,7 +35,7 @@ try {
 
         echo json_encode([
             'status' => 'success',
-            'user' => [
+            'user' => [ // Nest user data under "user"
                 'id' => $user['id'],
                 'email' => $user['email'],
                 'firstname' => $user['firstname'],

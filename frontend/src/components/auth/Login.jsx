@@ -27,7 +27,7 @@ export default function Login() {
         return;
       }
 
-      localStorage.setItem('user', JSON.stringify(data.user));
+      localStorage.setItem('user', JSON.stringify(data));
       navigate('/catalog');
       
     } catch (error) {
