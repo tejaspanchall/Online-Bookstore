@@ -22,7 +22,7 @@ export default function Navbar() {
       <div className="container">
         <Link to="/catalog" className="navbar-brand fw-bold fs-4">
           <JournalBookmark className="me-2" />
-          BookVerse
+          BookCafe
         </Link>
         
         <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
