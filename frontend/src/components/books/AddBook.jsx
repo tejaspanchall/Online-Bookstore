@@ -42,7 +42,7 @@ export default function AddBook() {
     <AuthForm
       onSubmit={handleSubmit}
       title="Add New Book"
-      footerLink={{ to: '/my-library', text: 'Back to My Library' }}
+      footerLink={{ to: '/', text: 'Back to Home' }}
     >
       <div className="mb-3">
         <input

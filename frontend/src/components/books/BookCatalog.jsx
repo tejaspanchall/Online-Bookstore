@@ -61,7 +61,7 @@ export default function BookCatalog() {
         </div>
       </div>
 
-      <div className="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
+      <div className="row row-cols-1 row-cols-md-2 row-cols-xl-5 g-4">
         {books.map((book) => (
           <div className="col" key={book.id}>
             <BookCard

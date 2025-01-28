@@ -31,11 +31,16 @@ body {
 }
 
 .book-card {
+  width: 230px; /* Width of the card, resembling a book's cover */
+  height: 220px; /* Height proportional to a typical book */
   transition: all 0.3s ease;
   background: var(--dark) !important;
   border: 1px solid rgba(255, 255, 255, 0.1) !important;
   color: var(--light);
+  padding: 10px; /* Space inside the card for content */
+  align-items: center; /* Center-align content horizontally */
 }
+
 
 .book-card:hover {
   transform: translateY(-5px);

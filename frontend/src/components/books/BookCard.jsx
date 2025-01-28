@@ -15,7 +15,7 @@ export default function BookCard({ book, onClick }) {
       <div className="card-body">
         <h5 className="card-title fw-bold mb-3">{book.title}</h5>
         <div className="d-flex justify-content-between align-items-center">
-          <small className="text-muted">ISBN: {book.isbn}</small>
+          <small>ISBN: {book.isbn}</small>
         </div>
       </div>
     </div>
