@@ -16,25 +16,37 @@ export default function AddBook() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      console.log('Submitting book data:', book); // Debugging
+      // Fixed URL to match the server configuration
       const res = await fetch('http://localhost/online-bookstore/backend/api/books/add.php', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          // Add cache control headers to prevent caching issues
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0'
+        },
         credentials: 'include',
         body: JSON.stringify(book),
       });
-      console.log('Response status:', res.status); // Debugging
+
       const data = await res.json();
-      console.log('API Response:', data); // Debugging
-      if (res.ok) {
-        setMessage('Book added successfully!');
-        setTimeout(() => navigate('/my-library'), 2000);
-      } else {
-        setMessage(data.error || 'Failed to add book');
+      
+      if (!res.ok) {
+        if (res.status === 401) {
+          setMessage('Session expired. Please log in again.');
+          setTimeout(() => navigate('/login'), 2000);
+          return;
+        }
+        throw new Error(data.error || 'Failed to add book');
       }
+
+      setMessage('Book added successfully!');
+      setTimeout(() => navigate('/'), 2000);
+
     } catch (error) {
-      console.error('Fetch error:', error); // Debugging
-      setMessage('Failed to connect to server');
+      console.error('Error details:', error);
+      setMessage(error.message || 'Failed to connect to server');
     }
   };
 
@@ -97,11 +109,7 @@ export default function AddBook() {
         Add Book
       </button>
       {message && (
-        <div
-          className={`mt-3 alert ${
-            message.includes('successfully') ? 'alert-success' : 'alert-danger'
-          }`}
-        >
+        <div className={`mt-3 alert ${message.includes('success') ? 'alert-success' : 'alert-danger'}`}>
           {message}
         </div>
       )}
