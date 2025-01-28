@@ -16,21 +16,24 @@ export default function AddBook() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      console.log('Submitting book data:', book); // Debugging
       const res = await fetch('http://localhost/online-bookstore/backend/api/books/add.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify(book),
       });
-
+      console.log('Response status:', res.status); // Debugging
       const data = await res.json();
+      console.log('API Response:', data); // Debugging
       if (res.ok) {
         setMessage('Book added successfully!');
-        setTimeout(() => navigate('/my-library'), 2000); // Redirect after 2 seconds
+        setTimeout(() => navigate('/my-library'), 2000);
       } else {
         setMessage(data.error || 'Failed to add book');
       }
     } catch (error) {
+      console.error('Fetch error:', error); // Debugging
       setMessage('Failed to connect to server');
     }
   };

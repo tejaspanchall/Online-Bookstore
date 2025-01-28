@@ -1,33 +1,54 @@
 import React, { useState, useEffect } from 'react';
-import { Link, NavLink } from 'react-router-dom';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { PersonFill, JournalBookmark, PlusCircle } from 'react-bootstrap-icons';
 
 export default function Navbar() {
-  // State to track if the user is logged in
+  const navigate = useNavigate();
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('user'));
 
-  // Effect to listen for changes in localStorage
+  // Temporary debug in Navbar's useEffect
+useEffect(() => {
+  console.log('Auth state changed. Is logged in:', isLoggedIn);
+}, [isLoggedIn]);
+
+  // Update auth state whenever localStorage changes
   useEffect(() => {
-    const handleStorageChange = () => {
+    const checkAuth = () => {
       setIsLoggedIn(!!localStorage.getItem('user'));
     };
 
-    // Listen for changes to localStorage
-    window.addEventListener('storage', handleStorageChange);
+    // Check immediately
+    checkAuth();
 
-    // Cleanup the event listener
-    return () => window.removeEventListener('storage', handleStorageChange);
+    // Set up event listener
+    window.addEventListener('storage', checkAuth);
+    window.addEventListener('loginStateChange', checkAuth);
+
+    return () => {
+      window.removeEventListener('storage', checkAuth);
+      window.removeEventListener('loginStateChange', checkAuth);
+    };
   }, []);
 
-  // Handle logout
   const handleLogout = async () => {
     try {
-      await fetch('http://localhost/online-bookstore/backend/api/auth/logout.php', {
+      const response = await fetch('http://localhost/online-bookstore/backend/api/auth/logout.php', {
         method: 'POST',
-        credentials: 'include',
+        credentials: 'include', // Crucial for cookie handling
       });
-      localStorage.removeItem('user'); // Remove user data from localStorage
-      window.location.href = '/login'; // Redirect to login page
+  
+      if (response.ok) {
+        // Immediate state cleanup
+        localStorage.removeItem('user');
+        setIsLoggedIn(false);
+        
+        // Force UI update before navigation
+        window.dispatchEvent(new Event('storage')); // Trigger both events
+        window.dispatchEvent(new Event('loginStateChange'));
+        
+        // Redirect after state updates
+        setTimeout(() => navigate('/login'), 50); // Brief delay for UI refresh
+      }
     } catch (error) {
       console.error('Logout failed:', error);
     }
@@ -52,7 +73,6 @@ export default function Navbar() {
 
         <div className="collapse navbar-collapse" id="navbarNav">
           <ul className="navbar-nav ms-auto align-items-center gap-3">
-            {/* Show "My Library," "Add Book," and "Logout" if logged in */}
             {isLoggedIn ? (
               <>
                 <li className="nav-item">
@@ -66,13 +86,16 @@ export default function Navbar() {
                   </NavLink>
                 </li>
                 <li className="nav-item">
-                  <button onClick={handleLogout} className="btn btn-link nav-link text-danger">
+                  <button 
+                    onClick={handleLogout} 
+                    className="btn btn-link nav-link text-danger"
+                    style={{ cursor: 'pointer' }}
+                  >
                     Logout
                   </button>
                 </li>
               </>
             ) : (
-              // Show "Login" and "Register" if not logged in
               <>
                 <li className="nav-item">
                   <NavLink to="/login" className="nav-link">

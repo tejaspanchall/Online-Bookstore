@@ -27,7 +27,13 @@ export default function Login() {
         return;
       }
 
-      localStorage.setItem('user', JSON.stringify(data));
+      // Store user data in localStorage
+      localStorage.setItem('user', JSON.stringify(data.user));
+      
+      // Dispatch event to notify navbar of login
+      window.dispatchEvent(new Event('loginStateChange'));
+      
+      // Navigate to catalog
       navigate('/catalog');
       
     } catch (error) {
@@ -44,26 +50,26 @@ export default function Login() {
       {error && <div className="alert alert-danger">{error}</div>}
       
       <div className="mb-3">
-  <input
-    type="email"
-    className="form-control bg-dark text-white"
-    placeholder="Email"
-    value={form.email}
-    onChange={e => setForm({...form, email: e.target.value})}
-    required
-  />
-</div>
+        <input
+          type="email"
+          className="form-control bg-dark text-white"
+          placeholder="Email"
+          value={form.email}
+          onChange={e => setForm({...form, email: e.target.value})}
+          required
+        />
+      </div>
 
-<div className="mb-3">
-  <input
-    type="password"
-    className="form-control bg-dark text-white"
-    placeholder="Password"
-    value={form.password}
-    onChange={e => setForm({...form, password: e.target.value})}
-    required
-  />
-</div>
+      <div className="mb-3">
+        <input
+          type="password"
+          className="form-control bg-dark text-white"
+          placeholder="Password"
+          value={form.password}
+          onChange={e => setForm({...form, password: e.target.value})}
+          required
+        />
+      </div>
       
       <button type="submit" className="btn btn-primary w-100">
         Login
