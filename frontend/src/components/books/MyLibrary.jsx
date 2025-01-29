@@ -14,11 +14,14 @@ export default function MyLibrary() {
     const fetchMyLibrary = async () => {
       try {
         const res = await fetch('http://localhost/online-bookstore/backend/api/books/my-library.php', {
-          credentials: 'include'  // Important for sending session cookie
+          credentials: 'include',
+          headers: {
+            'Accept': 'application/json',
+            'Cache-Control': 'no-cache'
+          }
         });
         
         if (!res.ok) {
-          // Handle unauthorized access
           if (res.status === 401) {
             setError('Please login to view your library');
             setTimeout(() => navigate('/login'), 2000);
@@ -28,12 +31,18 @@ export default function MyLibrary() {
         }
 
         const data = await res.json();
-        // Backend always returns an array
-        setBooks(Array.isArray(data) ? data : []);
+        
+        // Check if the response is valid
+        if (!data) {
+          throw new Error('Invalid response from server');
+        }
+
+        // Handle both array and object responses
+        setBooks(Array.isArray(data) ? data : data.books || []);
 
       } catch (error) {
         console.error('Fetch error:', error);
-        setError('Failed to fetch library. Please try again later.');
+        setError(`Failed to fetch library: ${error.message}`);
       } finally {
         setLoading(false);
       }

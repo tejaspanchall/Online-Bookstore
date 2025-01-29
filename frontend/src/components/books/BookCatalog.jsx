@@ -14,7 +14,8 @@ export default function BookCatalog() {
   const [message, setMessage] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [filter, setFilter] = useState('recent'); // Default to "recent"
+  const [filter, setFilter] = useState('recent');
+  const [isLoading, setIsLoading] = useState(false);
   const BOOKS_PER_PAGE = 10;
 
   const applyFilter = (books) => {
@@ -54,6 +55,56 @@ export default function BookCatalog() {
       setAllBooks([]);
       setDisplayedBooks([]);
       setTotalPages(1);
+    }
+  };
+
+  const handleAddToLibrary = async (book) => {
+    setIsLoading(true);
+    try {
+      console.log('Sending book data:', book);
+      
+      const response = await fetch('http://localhost/online-bookstore/backend/api/books/my-library.php', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify({
+          bookId: book.id,
+          isbn: book.isbn,
+          title: book.title,
+          author: book.author,
+          image: book.image
+        }),
+      });
+  
+      // Log the raw response
+      const responseText = await response.text();
+      console.log('Raw server response:', responseText);
+  
+      // Try to parse the response
+      let data;
+      try {
+        data = JSON.parse(responseText);
+      } catch (e) {
+        console.error('JSON parse error:', e);
+        console.log('Response text that failed to parse:', responseText);
+        throw new Error('Server returned invalid JSON response');
+      }
+  
+      if (!response.ok) {
+        throw new Error(data.message || `Server error: ${response.status}`);
+      }
+  
+      setMessage('Book successfully added to your library!');
+      setTimeout(() => setMessage(''), 3000);
+      setSelectedBook(null);
+    } catch (error) {
+      console.error('Full error details:', error);
+      setMessage(`Failed to add book: ${error.message}`);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -121,6 +172,7 @@ export default function BookCatalog() {
       {message && (
         <div className={`alert ${message.includes('success') ? 'alert-success' : 'alert-danger'} mb-4`}>
           {message}
+          {isLoading && <span className="ms-2 spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>}
         </div>
       )}
 
@@ -150,10 +202,11 @@ export default function BookCatalog() {
 
       {selectedBook && (
         <BookPopup
-          book={selectedBook}
-          onClose={() => setSelectedBook(null)}
-          onAddToLibrary={() => console.log('Add to library', selectedBook)}
-        />
+        book={selectedBook}
+        onClose={() => setSelectedBook(null)}
+        onAddToLibrary={() => handleAddToLibrary(selectedBook)}
+        isLoading={isLoading}
+      />
       )}
     </div>
   );

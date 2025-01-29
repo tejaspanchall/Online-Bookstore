@@ -1,6 +1,6 @@
 import { X } from 'react-bootstrap-icons';
 
-export default function BookPopup({ book, onClose, onAddToLibrary }) {
+export default function BookPopup({ book, onClose, onAddToLibrary, isLoading }) {
   return (
     <div className="modal show d-block" tabIndex="-1">
       <div className="modal-dialog modal-lg modal-dialog-centered">
@@ -9,6 +9,7 @@ export default function BookPopup({ book, onClose, onAddToLibrary }) {
             <button 
               onClick={onClose} 
               className="btn-close btn-close-white position-absolute end-0 top-0 m-3"
+              disabled={isLoading}
             ></button>
           </div>
           <div className="modal-body p-4">
@@ -34,12 +35,21 @@ export default function BookPopup({ book, onClose, onAddToLibrary }) {
                   <button 
                     className="btn btn-primary"
                     onClick={onAddToLibrary}
+                    disabled={isLoading}
                   >
-                    Add to Library
+                    {isLoading ? (
+                      <>
+                        <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                        Adding...
+                      </>
+                    ) : (
+                      'Add to Library'
+                    )}
                   </button>
                   <button 
                     className="btn btn-outline-light"
                     onClick={onClose}
+                    disabled={isLoading}
                   >
                     Close
                   </button>
