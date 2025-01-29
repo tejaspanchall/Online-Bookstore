@@ -7,14 +7,30 @@ import Pagination from './Pagination';
 
 export default function BookCatalog() {
   const navigate = useNavigate();
-  const [allBooks, setAllBooks] = useState([]); // Store all books
-  const [displayedBooks, setDisplayedBooks] = useState([]); // Store paginated books
+  const [allBooks, setAllBooks] = useState([]);
+  const [displayedBooks, setDisplayedBooks] = useState([]);
   const [search, setSearch] = useState('');
   const [selectedBook, setSelectedBook] = useState(null);
   const [message, setMessage] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [filter, setFilter] = useState('recent'); // Default to "recent"
   const BOOKS_PER_PAGE = 10;
+
+  const applyFilter = (books) => {
+    switch (filter) {
+      case 'asc':
+        return [...books].sort((a, b) => a.title.localeCompare(b.title));
+      case 'desc':
+        return [...books].sort((a, b) => b.title.localeCompare(a.title));
+      case 'recent':
+        return [...books].sort((a, b) => b.id - a.id);
+      case 'last':
+        return [...books].sort((a, b) => a.id - b.id);
+      default:
+        return books;
+    }
+  };
 
   const searchBooks = async () => {
     try {
@@ -24,16 +40,14 @@ export default function BookCatalog() {
       if (!res.ok) throw new Error('Search failed');
       const data = await res.json();
       
-      // Store all books
       const books = Array.isArray(data) ? data : data.books || [];
-      setAllBooks(books);
+      const filteredBooks = applyFilter(books);
+      setAllBooks(filteredBooks);
       
-      // Calculate total pages
-      const total = Math.ceil(books.length / BOOKS_PER_PAGE);
+      const total = Math.ceil(filteredBooks.length / BOOKS_PER_PAGE);
       setTotalPages(total);
       
-      // Update displayed books for current page
-      updateDisplayedBooks(books, 1);
+      updateDisplayedBooks(filteredBooks, 1);
     } catch (error) {
       console.error('Fetch error:', error);
       setMessage('Search failed');
@@ -43,7 +57,6 @@ export default function BookCatalog() {
     }
   };
 
-  // Function to update displayed books based on current page
   const updateDisplayedBooks = (books, page) => {
     const startIndex = (page - 1) * BOOKS_PER_PAGE;
     const endIndex = startIndex + BOOKS_PER_PAGE;
@@ -51,61 +64,15 @@ export default function BookCatalog() {
     setCurrentPage(page);
   };
 
-  const handleAddToLibrary = async (book) => {
-    try {
-      const res = await fetch('http://localhost/online-bookstore/backend/api/books/add.php', {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Cache-Control': 'no-cache, no-store, must-revalidate',
-          'Pragma': 'no-cache',
-          'Expires': '0'
-        },
-        credentials: 'include',
-        body: JSON.stringify(book),
-      });
-  
-      const data = await res.json();
-      
-      if (!res.ok) {
-        if (res.status === 401) {
-          setMessage('Please login to add books to your library');
-          setTimeout(() => navigate('/login'), 2000);
-          return;
-        }
-        throw new Error(data.error || 'Failed to add book');
-      }
-  
-      setMessage('Book added to library successfully!');
-      setSelectedBook(null);
-      setTimeout(() => navigate('/my-library'), 2000);
-    } catch (error) {
-      console.error('Error details:', error);
-      setMessage(error.message || 'Failed to add book to library');
-    }
-  };
-
-  const handlePageChange = (page) => {
-    updateDisplayedBooks(allBooks, page);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const handleKeyPress = (e) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      setCurrentPage(1);
-      searchBooks();
-    }
-  };
-
-  const handleSearch = () => {
-    setCurrentPage(1);
-    searchBooks();
-  };
-
   useEffect(() => {
     searchBooks();
   }, []);
+
+  useEffect(() => {
+    const filteredBooks = applyFilter(allBooks);
+    setDisplayedBooks(filteredBooks.slice(0, BOOKS_PER_PAGE));
+    setTotalPages(Math.ceil(filteredBooks.length / BOOKS_PER_PAGE));
+  }, [filter]);
 
   return (
     <div className="container py-5">
@@ -121,14 +88,32 @@ export default function BookCatalog() {
               placeholder="Search books..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              onKeyPress={handleKeyPress}
+              onKeyPress={(e) => e.key === 'Enter' && searchBooks()}
             />
-            <button
-              onClick={handleSearch}
-              className="btn btn-primary px-4"
-            >
+            <button onClick={searchBooks} className="btn btn-primary px-4">
               Search
             </button>
+
+            <div className="ms-3">
+              <div className="dropdown">
+                <button
+                  className="btn btn-primary dropdown-toggle px-4 h-12"
+                  type="button"
+                  id="filterDropdown"
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false"
+                  style={{ height: "50px" }}
+                >
+                  Filter
+                </button>
+                <ul className="dropdown-menu" aria-labelledby="filterDropdown">
+                  <li><a className="dropdown-item" href="#" onClick={() => setFilter('asc')}>A-Z</a></li>
+                  <li><a className="dropdown-item" href="#" onClick={() => setFilter('desc')}>Z-A</a></li>
+                  <li><a className="dropdown-item" href="#" onClick={() => setFilter('recent')}>Recently Added</a></li>
+                  <li><a className="dropdown-item" href="#" onClick={() => setFilter('last')}>Last Added</a></li>
+                </ul>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -148,10 +133,7 @@ export default function BookCatalog() {
           <div className="row row-cols-1 row-cols-md-2 row-cols-xl-5 g-4">
             {displayedBooks.map((book) => (
               <div className="col" key={book.id}>
-                <BookCard
-                  book={book}
-                  onClick={() => setSelectedBook(book)}
-                />
+                <BookCard book={book} onClick={() => setSelectedBook(book)} />
               </div>
             ))}
           </div>
@@ -160,7 +142,7 @@ export default function BookCatalog() {
             <Pagination
               currentPage={currentPage}
               totalPages={totalPages}
-              onPageChange={handlePageChange}
+              onPageChange={(page) => updateDisplayedBooks(allBooks, page)}
             />
           )}
         </>
@@ -170,7 +152,7 @@ export default function BookCatalog() {
         <BookPopup
           book={selectedBook}
           onClose={() => setSelectedBook(null)}
-          onAddToLibrary={() => handleAddToLibrary(selectedBook)}
+          onAddToLibrary={() => console.log('Add to library', selectedBook)}
         />
       )}
     </div>
