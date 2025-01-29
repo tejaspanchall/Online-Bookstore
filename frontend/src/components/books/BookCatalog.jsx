@@ -3,13 +3,18 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import BookCard from './BookCard';
 import BookPopup from './BookPopup';
+import Pagination from './Pagination';
 
 export default function BookCatalog() {
   const navigate = useNavigate();
-  const [books, setBooks] = useState([]);
+  const [allBooks, setAllBooks] = useState([]); // Store all books
+  const [displayedBooks, setDisplayedBooks] = useState([]); // Store paginated books
   const [search, setSearch] = useState('');
   const [selectedBook, setSelectedBook] = useState(null);
   const [message, setMessage] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const BOOKS_PER_PAGE = 10;
 
   const searchBooks = async () => {
     try {
@@ -18,11 +23,32 @@ export default function BookCatalog() {
       );
       if (!res.ok) throw new Error('Search failed');
       const data = await res.json();
-      setBooks(data);
+      
+      // Store all books
+      const books = Array.isArray(data) ? data : data.books || [];
+      setAllBooks(books);
+      
+      // Calculate total pages
+      const total = Math.ceil(books.length / BOOKS_PER_PAGE);
+      setTotalPages(total);
+      
+      // Update displayed books for current page
+      updateDisplayedBooks(books, 1);
     } catch (error) {
       console.error('Fetch error:', error);
       setMessage('Search failed');
+      setAllBooks([]);
+      setDisplayedBooks([]);
+      setTotalPages(1);
     }
+  };
+
+  // Function to update displayed books based on current page
+  const updateDisplayedBooks = (books, page) => {
+    const startIndex = (page - 1) * BOOKS_PER_PAGE;
+    const endIndex = startIndex + BOOKS_PER_PAGE;
+    setDisplayedBooks(books.slice(startIndex, endIndex));
+    setCurrentPage(page);
   };
 
   const handleAddToLibrary = async (book) => {
@@ -59,11 +85,22 @@ export default function BookCatalog() {
     }
   };
 
+  const handlePageChange = (page) => {
+    updateDisplayedBooks(allBooks, page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const handleKeyPress = (e) => {
     if (e.key === 'Enter') {
       e.preventDefault();
+      setCurrentPage(1);
       searchBooks();
     }
+  };
+
+  const handleSearch = () => {
+    setCurrentPage(1);
+    searchBooks();
   };
 
   useEffect(() => {
@@ -87,7 +124,7 @@ export default function BookCatalog() {
               onKeyPress={handleKeyPress}
             />
             <button
-              onClick={searchBooks}
+              onClick={handleSearch}
               className="btn btn-primary px-4"
             >
               Search
@@ -102,16 +139,32 @@ export default function BookCatalog() {
         </div>
       )}
 
-      <div className="row row-cols-1 row-cols-md-2 row-cols-xl-5 g-4">
-        {books.map((book) => (
-          <div className="col" key={book.id}>
-            <BookCard
-              book={book}
-              onClick={() => setSelectedBook(book)}
-            />
+      {displayedBooks.length === 0 ? (
+        <div className="text-center mt-4">
+          <p className="text-muted">No books found</p>
+        </div>
+      ) : (
+        <>
+          <div className="row row-cols-1 row-cols-md-2 row-cols-xl-5 g-4">
+            {displayedBooks.map((book) => (
+              <div className="col" key={book.id}>
+                <BookCard
+                  book={book}
+                  onClick={() => setSelectedBook(book)}
+                />
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
+
+          {totalPages > 1 && (
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+            />
+          )}
+        </>
+      )}
 
       {selectedBook && (
         <BookPopup
