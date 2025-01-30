@@ -7,11 +7,11 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
 // Set headers
-header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: http://localhost:3000');
-header('Access-Control-Allow-Methods: POST, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type');
 header('Access-Control-Allow-Credentials: true');
+header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type');
+header('Content-Type: application/json');
 
 // Handle preflight OPTIONS request
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
@@ -43,7 +43,7 @@ $data = json_decode($json, true);
 $requestLog['rawInput'] = $json;
 $requestLog['parsedData'] = $data;
 
-if (!$data || !isset($data['bookId'])) {
+if (!$data || !isset($data['isbn'])) {
     http_response_code(400);
     echo json_encode([
         'error' => 'Invalid request data',
@@ -56,36 +56,40 @@ try {
     // Begin transaction
     $pdo->beginTransaction();
 
-    // First, ensure the book exists in the books table
+    // First, try to insert or update the book using ISBN
     $insertBook = $pdo->prepare("
-        INSERT INTO books (id, isbn, title, author, image) 
-        VALUES (:id, :isbn, :title, :author, :image)
-        ON DUPLICATE KEY UPDATE
-        isbn = VALUES(isbn),
-        title = VALUES(title),
-        author = VALUES(author),
-        image = VALUES(image)
+        INSERT INTO books (isbn, title, author, image, description) 
+        VALUES (:isbn, :title, :author, :image, :description)
+        ON CONFLICT (isbn) DO UPDATE SET
+            title = EXCLUDED.title,
+            author = EXCLUDED.author,
+            image = EXCLUDED.image,
+            description = EXCLUDED.description
+        RETURNING id
     ");
     
     $bookData = [
-        ':id' => $data['bookId'],
-        ':isbn' => $data['isbn'] ?? '',
+        ':isbn' => $data['isbn'],
         ':title' => $data['title'] ?? '',
         ':author' => $data['author'] ?? '',
-        ':image' => $data['image'] ?? ''
+        ':image' => $data['image'] ?? '',
+        ':description' => $data['description'] ?? ''
     ];
     
     $insertBook->execute($bookData);
+    $bookResult = $insertBook->fetch(PDO::FETCH_ASSOC);
+    $bookId = $bookResult['id'];
 
-    // Then add to user's library if not already there
+    // Then add to user's library
     $addToLibrary = $pdo->prepare("
-        INSERT IGNORE INTO user_books (user_id, book_id) 
+        INSERT INTO user_books (user_id, book_id) 
         VALUES (:userId, :bookId)
+        ON CONFLICT (user_id, book_id) DO NOTHING
     ");
     
     $addToLibrary->execute([
         ':userId' => $_SESSION['user_id'],
-        ':bookId' => $data['bookId']
+        ':bookId' => $bookId
     ]);
 
     // Commit transaction
@@ -96,7 +100,7 @@ try {
         'message' => 'Book successfully added to library',
         'debug' => [
             'request' => $requestLog,
-            'bookId' => $data['bookId'],
+            'bookId' => $bookId,
             'userId' => $_SESSION['user_id']
         ]
     ]);

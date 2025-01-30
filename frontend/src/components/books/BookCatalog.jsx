@@ -61,23 +61,21 @@ export default function BookCatalog() {
   const handleAddToLibrary = async (book) => {
     setIsLoading(true);
     try {
-      console.log('Sending book data:', book);
-      
-      const response = await fetch('http://localhost/online-bookstore/backend/api/books/my-library.php', {
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        body: JSON.stringify({
-          bookId: book.id,
-          isbn: book.isbn,
-          title: book.title,
-          author: book.author,
-          image: book.image
-        }),
-      });
+    const response = await fetch('http://localhost/online-bookstore/backend/api/books/my-library.php', {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: JSON.stringify({
+        isbn: book.isbn,
+        title: book.title,
+        author: book.author,
+        image: book.image,
+        description: book.description
+      }),
+    });
   
       // Log the raw response
       const responseText = await response.text();

@@ -13,13 +13,16 @@ export default function MyLibrary() {
   useEffect(() => {
     const fetchMyLibrary = async () => {
       try {
-        const res = await fetch('http://localhost/online-bookstore/backend/api/books/my-library.php', {
-          credentials: 'include',
-          headers: {
-            'Accept': 'application/json',
-            'Cache-Control': 'no-cache'
+        const res = await fetch(
+          'http://localhost/online-bookstore/backend/api/books/get-library.php', 
+          {
+            method: 'GET',
+            credentials: 'include',
+            headers: {
+              'Content-Type': 'application/json'
+            }
           }
-        });
+        );
         
         if (!res.ok) {
           if (res.status === 401) {
@@ -31,18 +34,11 @@ export default function MyLibrary() {
         }
 
         const data = await res.json();
-        
-        // Check if the response is valid
-        if (!data) {
-          throw new Error('Invalid response from server');
-        }
-
-        // Handle both array and object responses
-        setBooks(Array.isArray(data) ? data : data.books || []);
+        setBooks(Array.isArray(data) ? data : []);
 
       } catch (error) {
         console.error('Fetch error:', error);
-        setError(`Failed to fetch library: ${error.message}`);
+        setError('Failed to fetch library');
       } finally {
         setLoading(false);
       }
@@ -114,7 +110,6 @@ export default function MyLibrary() {
         <BookPopup
           book={selectedBook}
           onClose={() => setSelectedBook(null)}
-          // Remove the add to library button since books are already in library
           onAddToLibrary={null}
         />
       )}
