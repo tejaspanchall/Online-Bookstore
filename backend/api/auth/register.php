@@ -15,7 +15,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 $data = json_decode(file_get_contents('php://input'), true);
 
-// Validate required fields
 $required = ['firstname', 'lastname', 'email', 'password'];
 foreach ($required as $field) {
     if (empty($data[$field])) {
@@ -25,10 +24,7 @@ foreach ($required as $field) {
     }
 }
 
-// Rest of your existing code...
-
 try {
-    // Check existing email
     $stmt = $pdo->prepare("SELECT id FROM users WHERE email = ?");
     $stmt->execute([$data['email']]);
     
@@ -38,10 +34,8 @@ try {
         exit;
     }
 
-    // Hash password
     $hashedPassword = password_hash($data['password'], PASSWORD_DEFAULT);
 
-    // Insert new user
     $stmt = $pdo->prepare("INSERT INTO users (firstname, lastname, email, password) VALUES (?, ?, ?, ?)");
     $stmt->execute([
         $data['firstname'],

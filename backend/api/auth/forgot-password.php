@@ -1,6 +1,6 @@
 <?php
 require_once '../../config/database.php';
-require '../../vendor/autoload.php'; // Include Composer's autoloader
+require '../../vendor/autoload.php';
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
@@ -29,24 +29,20 @@ if ($user) {
     $stmt = $pdo->prepare("UPDATE users SET reset_token = ? WHERE email = ?");
     $stmt->execute([$reset_token, $email]);
 
-    // Send email with reset link
     $mail = new PHPMailer(true);
 
     try {
-        // Server settings
         $mail->isSMTP();
-        $mail->Host = 'smtp.gmail.com'; // Replace with your SMTP server
+        $mail->Host = 'smtp.gmail.com';
         $mail->SMTPAuth = true;
-        $mail->Username = 'tejaspanchal127@gmail.com'; // Replace with your email
-        $mail->Password = 'hnkbcikfudkrqtyc'; // Replace with your email password
+        $mail->Username = 'tejaspanchal127@gmail.com';
+        $mail->Password = 'hnkbcikfudkrqtyc';
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         $mail->Port = 587;
 
-        // Recipients
-        $mail->setFrom('admin@bookcafe.com', 'BookCafe'); // Replace with your email and name
-        $mail->addAddress($email); // Add a recipient
+        $mail->setFrom('admin@bookcafe.com', 'BookCafe');
+        $mail->addAddress($email);
 
-        // Content
         $mail->isHTML(true);
         $mail->Subject = 'Password Reset Instructions';
         $reset_link = "http://localhost:3000/reset-password?token=$reset_token";

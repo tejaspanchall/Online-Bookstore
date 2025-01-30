@@ -23,7 +23,6 @@ if (empty($token) || empty($password)) {
     exit;
 }
 
-// First, verify the token exists and hasn't expired
 $stmt = $pdo->prepare("SELECT * FROM users WHERE reset_token = ? AND reset_token IS NOT NULL");
 $stmt->execute([$token]);
 $user = $stmt->fetch();
@@ -34,10 +33,8 @@ if (!$user) {
     exit;
 }
 
-// Hash the new password
 $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
-// Update the password and remove the reset token
 $stmt = $pdo->prepare("UPDATE users SET password = ?, reset_token = NULL WHERE reset_token = ?");
 if ($stmt->execute([$hashed_password, $token])) {
     echo json_encode(['status' => 'success', 'message' => 'Password reset successful']);

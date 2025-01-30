@@ -2,30 +2,25 @@
 require_once '../../config/database.php';
 session_start();
 
-// Enable error reporting for debugging
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-// Set headers
 header('Access-Control-Allow-Origin: http://localhost:3000');
 header('Access-Control-Allow-Credentials: true');
 header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type');
 header('Content-Type: application/json');
 
-// Handle preflight OPTIONS request
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
     exit;
 }
 
-// Log incoming request
 $requestLog = [
     'method' => $_SERVER['REQUEST_METHOD'],
     'session' => isset($_SESSION['user_id']) ? 'exists' : 'missing'
 ];
 
-// Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
     http_response_code(401);
     echo json_encode([
@@ -35,11 +30,9 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
-// Get JSON data from request body
 $json = file_get_contents('php://input');
 $data = json_decode($json, true);
 
-// Log request data
 $requestLog['rawInput'] = $json;
 $requestLog['parsedData'] = $data;
 
@@ -53,10 +46,8 @@ if (!$data || !isset($data['isbn'])) {
 }
 
 try {
-    // Begin transaction
     $pdo->beginTransaction();
 
-    // First, try to insert or update the book using ISBN
     $insertBook = $pdo->prepare("
         INSERT INTO books (isbn, title, author, image, description) 
         VALUES (:isbn, :title, :author, :image, :description)
@@ -80,7 +71,6 @@ try {
     $bookResult = $insertBook->fetch(PDO::FETCH_ASSOC);
     $bookId = $bookResult['id'];
 
-    // Then add to user's library
     $addToLibrary = $pdo->prepare("
         INSERT INTO user_books (user_id, book_id) 
         VALUES (:userId, :bookId)
@@ -92,7 +82,6 @@ try {
         ':bookId' => $bookId
     ]);
 
-    // Commit transaction
     $pdo->commit();
 
     echo json_encode([
@@ -106,7 +95,6 @@ try {
     ]);
 
 } catch (PDOException $e) {
-    // Rollback transaction on error
     $pdo->rollBack();
     
     http_response_code(500);

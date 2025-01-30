@@ -8,7 +8,6 @@ header('Access-Control-Allow-Credentials: true');
 
 $query = $_GET['q'] ?? '';
 
-// Get all books when no search query
 if (empty($query)) {
     $stmt = $pdo->query("SELECT * FROM books");
     echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));
