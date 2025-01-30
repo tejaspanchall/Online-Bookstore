@@ -15,7 +15,6 @@ export default function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Client-side validation
     if (form.email !== form.confirmEmail) {
       alert('Emails do not match');
       return;

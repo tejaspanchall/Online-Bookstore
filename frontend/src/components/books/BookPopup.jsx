@@ -1,5 +1,3 @@
-import { X } from 'react-bootstrap-icons';
-
 export default function BookPopup({ book, onClose, onAddToLibrary, isLoading }) {
   return (
     <div className="modal show d-block" tabIndex="-1">

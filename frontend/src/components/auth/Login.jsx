@@ -27,13 +27,10 @@ export default function Login() {
         return;
       }
 
-      // Store user data in localStorage
       localStorage.setItem('user', JSON.stringify(data.user));
       
-      // Dispatch event to notify navbar of login
       window.dispatchEvent(new Event('loginStateChange'));
       
-      // Navigate to catalog
       navigate('/catalog');
       
     } catch (error) {

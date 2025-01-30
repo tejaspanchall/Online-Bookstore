@@ -16,12 +16,10 @@ export default function AddBook() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // Fixed URL to match the server configuration
       const res = await fetch('http://localhost/online-bookstore/backend/api/books/add.php', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
-          // Add cache control headers to prevent caching issues
           'Cache-Control': 'no-cache, no-store, must-revalidate',
           'Pragma': 'no-cache',
           'Expires': '0'

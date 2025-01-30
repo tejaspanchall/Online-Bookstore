@@ -6,21 +6,17 @@ export default function Navbar() {
   const navigate = useNavigate();
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('user'));
 
-  // Temporary debug in Navbar's useEffect
 useEffect(() => {
   console.log('Auth state changed. Is logged in:', isLoggedIn);
 }, [isLoggedIn]);
 
-  // Update auth state whenever localStorage changes
   useEffect(() => {
     const checkAuth = () => {
       setIsLoggedIn(!!localStorage.getItem('user'));
     };
 
-    // Check immediately
     checkAuth();
 
-    // Set up event listener
     window.addEventListener('storage', checkAuth);
     window.addEventListener('loginStateChange', checkAuth);
 
@@ -34,20 +30,17 @@ useEffect(() => {
     try {
       const response = await fetch('http://localhost/online-bookstore/backend/api/auth/logout.php', {
         method: 'POST',
-        credentials: 'include', // Crucial for cookie handling
+        credentials: 'include', 
       });
   
       if (response.ok) {
-        // Immediate state cleanup
         localStorage.removeItem('user');
         setIsLoggedIn(false);
         
-        // Force UI update before navigation
-        window.dispatchEvent(new Event('storage')); // Trigger both events
+        window.dispatchEvent(new Event('storage'));
         window.dispatchEvent(new Event('loginStateChange'));
         
-        // Redirect after state updates
-        setTimeout(() => navigate('/login'), 50); // Brief delay for UI refresh
+        setTimeout(() => navigate('/login'), 50);
       }
     } catch (error) {
       console.error('Logout failed:', error);

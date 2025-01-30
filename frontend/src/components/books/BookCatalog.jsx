@@ -77,11 +77,9 @@ export default function BookCatalog() {
       }),
     });
   
-      // Log the raw response
       const responseText = await response.text();
       console.log('Raw server response:', responseText);
   
-      // Try to parse the response
       let data;
       try {
         data = JSON.parse(responseText);
