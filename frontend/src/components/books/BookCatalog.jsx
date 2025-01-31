@@ -2,7 +2,6 @@ import { Search } from 'react-bootstrap-icons';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import BookCard from './BookCard';
-import BookPopup from './BookPopup';
 import Pagination from './Pagination';
 
 export default function BookCatalog() {
@@ -10,7 +9,6 @@ export default function BookCatalog() {
   const [allBooks, setAllBooks] = useState([]);
   const [displayedBooks, setDisplayedBooks] = useState([]);
   const [search, setSearch] = useState('');
-  const [selectedBook, setSelectedBook] = useState(null);
   const [message, setMessage] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -58,52 +56,6 @@ export default function BookCatalog() {
     }
   };
 
-  const handleAddToLibrary = async (book) => {
-    setIsLoading(true);
-    try {
-    const response = await fetch('http://localhost/online-bookstore/backend/api/books/my-library.php', {
-      method: 'POST',
-      credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
-      body: JSON.stringify({
-        isbn: book.isbn,
-        title: book.title,
-        author: book.author,
-        image: book.image,
-        description: book.description
-      }),
-    });
-  
-      const responseText = await response.text();
-      console.log('Raw server response:', responseText);
-  
-      let data;
-      try {
-        data = JSON.parse(responseText);
-      } catch (e) {
-        console.error('JSON parse error:', e);
-        console.log('Response text that failed to parse:', responseText);
-        throw new Error('Server returned invalid JSON response');
-      }
-  
-      if (!response.ok) {
-        throw new Error(data.message || `Server error: ${response.status}`);
-      }
-  
-      setMessage('Book successfully added to your library!');
-      setTimeout(() => setMessage(''), 3000);
-      setSelectedBook(null);
-    } catch (error) {
-      console.error('Full error details:', error);
-      setMessage(`Failed to add book: ${error.message}`);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   const updateDisplayedBooks = (books, page) => {
     const startIndex = (page - 1) * BOOKS_PER_PAGE;
     const endIndex = startIndex + BOOKS_PER_PAGE;
@@ -121,8 +73,13 @@ export default function BookCatalog() {
     setTotalPages(Math.ceil(filteredBooks.length / BOOKS_PER_PAGE));
   }, [filter]);
 
+  const handleBookClick = (bookId) => {
+    navigate(`/book/${bookId}`);
+  };
+
   return (
     <div className="container py-5">
+      {/* Search and filter section remains the same */}
       <div className="row mb-5">
         <div className="col-lg-8 mx-auto">
           <div className="input-group input-group-lg">
@@ -168,7 +125,6 @@ export default function BookCatalog() {
       {message && (
         <div className={`alert ${message.includes('success') ? 'alert-success' : 'alert-danger'} mb-4`}>
           {message}
-          {isLoading && <span className="ms-2 spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>}
         </div>
       )}
 
@@ -181,7 +137,10 @@ export default function BookCatalog() {
           <div className="row row-cols-1 row-cols-md-2 row-cols-xl-5 g-4">
             {displayedBooks.map((book) => (
               <div className="col" key={book.id}>
-                <BookCard book={book} onClick={() => setSelectedBook(book)} />
+                <BookCard 
+                  book={book} 
+                  onClick={() => handleBookClick(book.id)} 
+                />
               </div>
             ))}
           </div>
@@ -194,15 +153,6 @@ export default function BookCatalog() {
             />
           )}
         </>
-      )}
-
-      {selectedBook && (
-        <BookPopup
-        book={selectedBook}
-        onClose={() => setSelectedBook(null)}
-        onAddToLibrary={() => handleAddToLibrary(selectedBook)}
-        isLoading={isLoading}
-      />
       )}
     </div>
   );

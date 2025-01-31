@@ -11,6 +11,7 @@ import Register from './components/auth/Register';
 import ForgotPassword from './components/auth/ForgotPassword';
 import AddBook from './components/books/AddBook';
 import ResetPassword from './components/auth/ResetPassword';
+import BookDetail from './components/books/BookDetail';
 
 export default function App() {
   return (
@@ -27,6 +28,7 @@ export default function App() {
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/add-book" element={<AddBook />} />
             <Route path="/my-library" element={<MyLibrary />} />
+            <Route path="/book/:id" element={<BookDetail />} />
           </Routes>
         </div>
         <Toaster position="bottom-right" toastOptions={{ className: 'bg-gray-800 text-white' }} />
