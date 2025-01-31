@@ -24,7 +24,7 @@ export default function Register() {
       const res = await fetch('http://localhost/online-bookstore/backend/api/auth/register.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        credentials: 'include', // Add this line
+        credentials: 'include',
         body: JSON.stringify({
           firstname: form.firstname,
           lastname: form.lastname,
