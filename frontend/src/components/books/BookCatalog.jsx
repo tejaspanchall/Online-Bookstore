@@ -16,6 +16,12 @@ export default function BookCatalog() {
   const [isLoading, setIsLoading] = useState(false);
   const BOOKS_PER_PAGE = 10;
 
+  const getImageUrl = (imagePath) => {
+    if (!imagePath) return 'https://via.placeholder.com/200x300?text=Book+Cover';
+    if (imagePath.startsWith('http')) return imagePath;
+    return `http://localhost${imagePath.startsWith('/') ? '' : '/'}${imagePath}`;
+  };
+
   const applyFilter = (books) => {
     switch (filter) {
       case 'asc':
@@ -79,7 +85,6 @@ export default function BookCatalog() {
 
   return (
     <div className="container py-5">
-      {/* Search and filter section remains the same */}
       <div className="row mb-5">
         <div className="col-lg-8 mx-auto">
           <div className="input-group input-group-lg">
@@ -140,6 +145,7 @@ export default function BookCatalog() {
                 <BookCard 
                   book={book} 
                   onClick={() => handleBookClick(book.id)} 
+                  getImageUrl={getImageUrl} // Pass the function here
                 />
               </div>
             ))}

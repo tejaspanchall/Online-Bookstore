@@ -5,7 +5,7 @@ session_start();
 
 header('Access-Control-Allow-Origin: http://localhost:3000');
 header('Access-Control-Allow-Methods: POST, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, Authorization, Cache-Control, Pragma, Expires');
+header('Access-Control-Allow-Headers: Content-Type');
 header('Access-Control-Allow-Credentials: true');
 header('Content-Type: application/json');
 
@@ -20,34 +20,62 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
-$input = file_get_contents('php://input');
-if (!$input) {
-    http_response_code(400);
-    echo json_encode(['error' => 'No data received']);
-    exit;
-}
-
-$data = json_decode($input, true);
-if (!$data) {
-    http_response_code(400);
-    echo json_encode(['error' => 'Invalid JSON data']);
-    exit;
-}
-
 $required = ['title', 'description', 'isbn', 'author'];
 foreach ($required as $field) {
-    if (empty($data[$field])) {
+    if (empty($_POST[$field])) {
         http_response_code(400);
         echo json_encode(['error' => "Missing required field: $field"]);
         exit;
     }
 }
 
+// Handle image upload
+$imagePath = '';
+if (!empty($_FILES['image'])) {
+    $uploadDir = '../../uploads/book_covers/';
+    
+    // Create directory if not exists
+    if (!is_dir($uploadDir)) {
+        mkdir($uploadDir, 0755, true);
+    }
+
+    $imageFileName = uniqid() . '_' . basename($_FILES['image']['name']);
+    $targetFilePath = $uploadDir . $imageFileName;
+
+    // Validate file
+    $imageFileType = strtolower(pathinfo($targetFilePath, PATHINFO_EXTENSION));
+    $allowedTypes = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+
+    if (!in_array($imageFileType, $allowedTypes)) {
+        http_response_code(400);
+        echo json_encode(['error' => 'Invalid image type']);
+        exit;
+    }
+
+    if ($_FILES['image']['size'] > 5 * 1024 * 1024) { // 5MB limit
+        http_response_code(400);
+        echo json_encode(['error' => 'Image too large (max 5MB)']);
+        exit;
+    }
+
+    if (move_uploaded_file($_FILES['image']['tmp_name'], $targetFilePath)) {
+        // Store the URL path for the database
+        $imagePath = '/online-bookstore/backend/uploads/book_covers/' . $imageFileName;
+    } else {
+        http_response_code(500);
+        echo json_encode(['error' => 'Failed to upload image']);
+        exit;
+    }
+
+    // Relative path for database storage
+    $imagePath = str_replace('../../', '', $targetFilePath);
+}
+
 try {
     $pdo->beginTransaction();
 
     $stmt = $pdo->prepare("SELECT id FROM books WHERE isbn = ?");
-    $stmt->execute([$data['isbn']]);
+    $stmt->execute([$_POST['isbn']]);
     $existingBook = $stmt->fetch();
 
     if ($existingBook) {
@@ -55,11 +83,11 @@ try {
     } else {
         $stmt = $pdo->prepare("INSERT INTO books (title, image, description, isbn, author) VALUES (?, ?, ?, ?, ?)");
         $stmt->execute([
-            $data['title'],
-            $data['image'] ?? '',
-            $data['description'],
-            $data['isbn'],
-            $data['author']
+            $_POST['title'],
+            $imagePath,
+            $_POST['description'],
+            $_POST['isbn'],
+            $_POST['author']
         ]);
         $bookId = $pdo->lastInsertId();
     }

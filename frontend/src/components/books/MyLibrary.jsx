@@ -10,6 +10,12 @@ export default function MyLibrary() {
   const [loading, setLoading] = useState(true);
   const [selectedBook, setSelectedBook] = useState(null);
 
+  const getImageUrl = (imagePath) => {
+    if (!imagePath) return 'https://via.placeholder.com/200x300?text=Book+Cover';
+    if (imagePath.startsWith('http')) return imagePath;
+    return `http://localhost${imagePath.startsWith('/') ? '' : '/'}${imagePath}`;
+  };
+
   useEffect(() => {
     const fetchMyLibrary = async () => {
       try {
@@ -100,6 +106,7 @@ export default function MyLibrary() {
               <BookCard 
                 book={book}
                 onClick={() => setSelectedBook(book)}
+                getImageUrl={getImageUrl} // Pass the function here
               />
             </div>
           ))}

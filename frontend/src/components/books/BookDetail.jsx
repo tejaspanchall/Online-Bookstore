@@ -9,6 +9,7 @@ export default function BookDetail() {
   const [isEditing, setIsEditing] = useState(false);
   const [editedBook, setEditedBook] = useState(null);
   const [error, setError] = useState(null);
+  const [newImage, setNewImage] = useState(null);
 
   const fetchBook = async () => {
     try {
@@ -32,12 +33,21 @@ export default function BookDetail() {
     }
   };
 
+  const getImageUrl = (imagePath) => {
+    if (!imagePath) return 'https://via.placeholder.com/200x300?text=Book+Cover';
+    // If the path already starts with http or https, return as is
+    if (imagePath.startsWith('http')) return imagePath;
+    // Otherwise, ensure it starts with a forward slash
+    return `http://localhost${imagePath.startsWith('/') ? '' : '/'}${imagePath}`;
+  };
+
   useEffect(() => {
     fetchBook();
   }, [id]);
 
   const handleEditToggle = () => {
     setIsEditing(!isEditing);
+    setNewImage(null);
   };
 
   const handleInputChange = (e) => {
@@ -48,15 +58,29 @@ export default function BookDetail() {
     }));
   };
 
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    setNewImage(file);
+  };
+
   const handleSaveEdit = async () => {
+    const formData = new FormData();
+    
+    formData.append('id', editedBook.id);
+    formData.append('title', editedBook.title);
+    formData.append('author', editedBook.author);
+    formData.append('isbn', editedBook.isbn);
+    formData.append('description', editedBook.description);
+    
+    if (newImage) {
+      formData.append('image', newImage);
+    }
+
     try {
-      const res = await fetch(`http://localhost/online-bookstore/backend/api/books/update-book.php`, {
+      const res = await fetch('http://localhost/online-bookstore/backend/api/books/update-book.php', {
         method: 'POST',
         credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(editedBook)
+        body: formData
       });
 
       if (!res.ok) {
@@ -64,7 +88,11 @@ export default function BookDetail() {
         throw new Error(errorData.error || 'Failed to update book');
       }
 
-      setBook(editedBook);
+      const updatedData = await res.json();
+      setBook({
+        ...editedBook,
+        image: updatedData.image_path || editedBook.image
+      });
       setIsEditing(false);
     } catch (error) {
       console.error('Update error:', error);
@@ -76,7 +104,7 @@ export default function BookDetail() {
     if (!window.confirm('Are you sure you want to delete this book?')) return;
 
     try {
-      const res = await fetch(`http://localhost/online-bookstore/backend/api/books/delete-book.php`, {
+      const res = await fetch('http://localhost/online-bookstore/backend/api/books/delete-book.php', {
         method: 'POST',
         credentials: 'include',
         headers: {
@@ -106,17 +134,23 @@ export default function BookDetail() {
       <div className="row">
         <div className="col-md-4">
           {isEditing ? (
-            <input
-              type="text"
-              name="image"
-              value={editedBook.image || ''}
-              onChange={handleInputChange}
-              className="form-control mb-2"
-              placeholder="Image URL"
-            />
+            <div>
+              <input
+                type="file"
+                className="form-control mb-2"
+                onChange={handleImageChange}
+                accept="image/*"
+              />
+              <img
+                src={newImage ? URL.createObjectURL(newImage) : getImageUrl(book.image)}
+                alt={book.title}
+                className="img-fluid rounded-3 shadow-sm"
+                style={{ maxHeight: '300px', width: '100%', objectFit: 'cover' }}
+              />
+            </div>
           ) : (
             <img
-              src={book.image || 'https://via.placeholder.com/200x300?text=Book+Cover'}
+              src={getImageUrl(book.image)}
               alt={book.title}
               className="img-fluid rounded-3 shadow-sm"
               style={{ maxHeight: '100%', width: '300px', objectFit: 'cover' }}
@@ -129,32 +163,32 @@ export default function BookDetail() {
               <input
                 type="text"
                 name="title"
+                className="form-control mb-2"
                 value={editedBook.title}
                 onChange={handleInputChange}
-                className="form-control mb-2"
                 placeholder="Book Title"
               />
               <input
                 type="text"
                 name="author"
+                className="form-control mb-2"
                 value={editedBook.author}
                 onChange={handleInputChange}
-                className="form-control mb-2"
                 placeholder="Author"
               />
               <input
                 type="text"
                 name="isbn"
+                className="form-control mb-2"
                 value={editedBook.isbn}
                 onChange={handleInputChange}
-                className="form-control mb-2"
                 placeholder="ISBN"
               />
               <textarea
                 name="description"
+                className="form-control mb-2"
                 value={editedBook.description}
                 onChange={handleInputChange}
-                className="form-control mb-2"
                 placeholder="Book Description"
                 rows="4"
               />

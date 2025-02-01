@@ -6,26 +6,41 @@ export default function AddBook() {
   const navigate = useNavigate();
   const [book, setBook] = useState({
     title: '',
-    image: '',
+    image: null,
     description: '',
     isbn: '',
     author: '',
   });
   const [message, setMessage] = useState('');
 
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    setBook(prev => ({
+      ...prev,
+      image: file
+    }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const formData = new FormData();
+    
+    // Append text fields
+    formData.append('title', book.title);
+    formData.append('description', book.description);
+    formData.append('isbn', book.isbn);
+    formData.append('author', book.author);
+    
+    // Append image file if exists
+    if (book.image) {
+      formData.append('image', book.image);
+    }
+
     try {
       const res = await fetch('http://localhost/online-bookstore/backend/api/books/add.php', {
         method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Cache-Control': 'no-cache, no-store, must-revalidate',
-          'Pragma': 'no-cache',
-          'Expires': '0'
-        },
         credentials: 'include',
-        body: JSON.stringify(book),
+        body: formData, // Use FormData instead of JSON
       });
 
       const data = await res.json();
@@ -66,11 +81,10 @@ export default function AddBook() {
       </div>
       <div className="mb-3">
         <input
-          type="text"
+          type="file"
           className="form-control bg-dark text-white"
-          placeholder="Image URL"
-          value={book.image}
-          onChange={(e) => setBook({ ...book, image: e.target.value })}
+          onChange={handleFileChange}
+          accept="image/*"
         />
       </div>
       <div className="mb-3">

@@ -1,9 +1,11 @@
-export default function BookCard({ book, onClick }) {
+import React from "react";
+
+const BookCard = ({ book, onClick, getImageUrl }) => {
   return (
-    <div className="book-card card h-100 border-0 overflow-hidden" onClick={onClick}>
+    <div className="book-card card h-100 border-0 overflow-hidden" onClick={onClick} style={{ cursor: 'pointer' }}>
       <div className="position-relative">
         <img 
-          src={book.image || 'https://via.placeholder.com/300x200?text=Book+Cover'} 
+          src={getImageUrl(book.image)}
           alt={book.title} 
           className="card-img-top" 
           style={{height: '250px', objectFit: 'cover'}}
@@ -13,11 +15,11 @@ export default function BookCard({ book, onClick }) {
         </div>
       </div>
       <div className="card-body">
-        <h5 className="card-title fw-bold mb-3">{book.title}</h5>
-        <div className="d-flex justify-content-between align-items-center">
-          <small>ISBN: {book.isbn}</small>
-        </div>
+        <h5 className="card-title">{book.title}</h5>
+        <p className="card-text">{book.author}</p>
       </div>
     </div>
   );
 }
+
+export default BookCard;
