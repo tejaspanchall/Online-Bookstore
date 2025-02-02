@@ -1,6 +1,5 @@
-// BookDetail.jsx
-import { useParams, useNavigate } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { useParams, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 
 export default function BookDetail() {
   const { id } = useParams();
@@ -13,62 +12,61 @@ export default function BookDetail() {
   const [error, setError] = useState(null);
   const [inLibrary, setInLibrary] = useState(false);
 
-  // Fetch the book details
   const fetchBook = async () => {
     try {
       const res = await fetch(
         `http://localhost/online-bookstore/backend/api/books/get-books.php?id=${id}`,
         {
-          credentials: 'include',
+          credentials: "include",
         }
       );
 
       if (!res.ok) {
         const errorData = await res.json();
-        throw new Error(errorData.error || 'Failed to fetch book');
+        throw new Error(errorData.error || "Failed to fetch book");
       }
 
       const data = await res.json();
       setBook(data);
       setEditedBook({ ...data });
     } catch (error) {
-      console.error('Fetch error:', error);
+      console.error("Fetch error:", error);
       setError(error.message);
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Check if the book is already in the user’s library
   const fetchLibraryStatus = async () => {
     try {
       const res = await fetch(
-        'http://localhost/online-bookstore/backend/api/books/get-library.php',
+        "http://localhost/online-bookstore/backend/api/books/get-library.php",
         {
-          method: 'GET',
-          credentials: 'include',
-          headers: { 'Content-Type': 'application/json' },
+          method: "GET",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
         }
       );
       if (res.ok) {
         const libraryBooks = await res.json();
         if (Array.isArray(libraryBooks)) {
-          // Compare IDs (casting as needed)
           setInLibrary(
-            libraryBooks.some((b) => parseInt(b.id, 10) === parseInt(id, 10))
+            libraryBooks.some(
+              (b) => parseInt(b.id, 10) === parseInt(id, 10)
+            )
           );
         }
       }
     } catch (error) {
-      console.error('Library status error:', error);
+      console.error("Library status error:", error);
     }
   };
 
   const getImageUrl = (imagePath) => {
     if (!imagePath)
-      return 'https://via.placeholder.com/200x300?text=Book+Cover';
-    if (imagePath.startsWith('http')) return imagePath;
-    return `http://localhost${imagePath.startsWith('/') ? '' : '/'}${imagePath}`;
+      return "https://via.placeholder.com/200x300?text=Book+Cover";
+    if (imagePath.startsWith("http")) return imagePath;
+    return `http://localhost${imagePath.startsWith("/") ? "" : "/"}${imagePath}`;
   };
 
   useEffect(() => {
@@ -76,7 +74,6 @@ export default function BookDetail() {
   }, [id]);
 
   useEffect(() => {
-    // Once we have the book, check if it is in the library.
     if (book) {
       fetchLibraryStatus();
     }
@@ -103,29 +100,29 @@ export default function BookDetail() {
   const handleSaveEdit = async () => {
     const formData = new FormData();
 
-    formData.append('id', editedBook.id);
-    formData.append('title', editedBook.title);
-    formData.append('author', editedBook.author);
-    formData.append('isbn', editedBook.isbn);
-    formData.append('description', editedBook.description);
+    formData.append("id", editedBook.id);
+    formData.append("title", editedBook.title);
+    formData.append("author", editedBook.author);
+    formData.append("isbn", editedBook.isbn);
+    formData.append("description", editedBook.description);
 
     if (newImage) {
-      formData.append('image', newImage);
+      formData.append("image", newImage);
     }
 
     try {
       const res = await fetch(
-        'http://localhost/online-bookstore/backend/api/books/update-book.php',
+        "http://localhost/online-bookstore/backend/api/books/update-book.php",
         {
-          method: 'POST',
-          credentials: 'include',
+          method: "POST",
+          credentials: "include",
           body: formData,
         }
       );
 
       if (!res.ok) {
         const errorData = await res.json();
-        throw new Error(errorData.error || 'Failed to update book');
+        throw new Error(errorData.error || "Failed to update book");
       }
 
       const updatedData = await res.json();
@@ -135,20 +132,19 @@ export default function BookDetail() {
       });
       setIsEditing(false);
     } catch (error) {
-      console.error('Update error:', error);
+      console.error("Update error:", error);
       setError(error.message);
     }
   };
 
-  // Add the book to the user’s library
   const handleAddToLibrary = async () => {
     try {
       const res = await fetch(
-        'http://localhost/online-bookstore/backend/api/books/my-library.php',
+        "http://localhost/online-bookstore/backend/api/books/my-library.php",
         {
-          method: 'POST',
-          credentials: 'include',
-          headers: { 'Content-Type': 'application/json' },
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             isbn: book.isbn,
             title: book.title,
@@ -161,27 +157,24 @@ export default function BookDetail() {
 
       if (!res.ok) {
         const errorData = await res.json();
-        throw new Error(
-          errorData.error || 'Failed to add book to library'
-        );
+        throw new Error(errorData.error || "Failed to add book to library");
       }
 
       setInLibrary(true);
     } catch (error) {
-      console.error('Add error:', error);
+      console.error("Add error:", error);
       setError(error.message);
     }
   };
 
-  // Remove the book from the user’s library (calls the new endpoint)
   const handleRemoveFromLibrary = async () => {
     try {
       const res = await fetch(
-        'http://localhost/online-bookstore/backend/api/books/remove-from-library.php',
+        "http://localhost/online-bookstore/backend/api/books/remove-from-library.php",
         {
-          method: 'POST',
-          credentials: 'include',
-          headers: { 'Content-Type': 'application/json' },
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ id: book.id }),
         }
       );
@@ -189,12 +182,12 @@ export default function BookDetail() {
       if (!res.ok) {
         const errorData = await res.json();
         throw new Error(
-          errorData.error || 'Failed to remove book from library'
+          errorData.error || "Failed to remove book from library"
         );
       }
       setInLibrary(false);
     } catch (error) {
-      console.error('Remove error:', error);
+      console.error("Remove error:", error);
       setError(error.message);
     }
   };
@@ -209,8 +202,7 @@ export default function BookDetail() {
         </div>
       </div>
     );
-  if (!book)
-    return <div className="container py-5">Book not found</div>;
+  if (!book) return <div className="container py-5">Book not found</div>;
 
   return (
     <div className="container py-5">
@@ -232,10 +224,11 @@ export default function BookDetail() {
                 }
                 alt={book.title}
                 className="img-fluid rounded-3 shadow-sm"
+                loading="lazy"
                 style={{
-                  maxHeight: '300px',
-                  width: '100%',
-                  objectFit: 'cover',
+                  maxHeight: "300px",
+                  width: "100%",
+                  objectFit: "cover",
                 }}
               />
             </div>
@@ -244,10 +237,11 @@ export default function BookDetail() {
               src={getImageUrl(book.image)}
               alt={book.title}
               className="img-fluid rounded-3 shadow-sm"
+              loading="lazy"
               style={{
-                maxHeight: '100%',
-                width: '300px',
-                objectFit: 'cover',
+                maxHeight: "100%",
+                width: "300px",
+                objectFit: "cover",
               }}
             />
           )}
@@ -293,13 +287,11 @@ export default function BookDetail() {
               <h3 className="fw-bold mb-3">{book.title}</h3>
               <div className="d-flex gap-2 mb-3">
                 <span className="badge bg-primary">{book.author}</span>
-                <span className="badge bg-secondary">
-                  ISBN: {book.isbn}
-                </span>
+                <span className="badge bg-secondary">ISBN: {book.isbn}</span>
               </div>
               <p
                 className="mb-4"
-                style={{ maxHeight: '150px', overflowY: 'auto' }}
+                style={{ maxHeight: "150px", overflowY: "auto" }}
               >
                 {book.description}
               </p>
@@ -309,16 +301,10 @@ export default function BookDetail() {
           <div className="d-flex gap-2">
             {isEditing ? (
               <>
-                <button
-                  className="btn btn-success"
-                  onClick={handleSaveEdit}
-                >
+                <button className="btn btn-success" onClick={handleSaveEdit}>
                   Save Changes
                 </button>
-                <button
-                  className="btn btn-secondary"
-                  onClick={handleEditToggle}
-                >
+                <button className="btn btn-secondary" onClick={handleEditToggle}>
                   Cancel
                 </button>
               </>
@@ -339,10 +325,7 @@ export default function BookDetail() {
                     Add to Library
                   </button>
                 )}
-                <button
-                  className="btn btn-primary"
-                  onClick={handleEditToggle}
-                >
+                <button className="btn btn-primary" onClick={handleEditToggle}>
                   Edit Book
                 </button>
                 <button
@@ -350,17 +333,17 @@ export default function BookDetail() {
                   onClick={async () => {
                     if (
                       window.confirm(
-                        'Are you sure you want to delete this book?'
+                        "Are you sure you want to delete this book?"
                       )
                     ) {
                       try {
                         const res = await fetch(
-                          'http://localhost/online-bookstore/backend/api/books/delete-book.php',
+                          "http://localhost/online-bookstore/backend/api/books/delete-book.php",
                           {
-                            method: 'POST',
-                            credentials: 'include',
+                            method: "POST",
+                            credentials: "include",
                             headers: {
-                              'Content-Type': 'application/json',
+                              "Content-Type": "application/json",
                             },
                             body: JSON.stringify({ id: book.id }),
                           }
@@ -368,12 +351,12 @@ export default function BookDetail() {
                         if (!res.ok) {
                           const errorData = await res.json();
                           throw new Error(
-                            errorData.error || 'Failed to delete book'
+                            errorData.error || "Failed to delete book"
                           );
                         }
-                        navigate('/catalog');
+                        navigate("/catalog");
                       } catch (error) {
-                        console.error('Delete error:', error);
+                        console.error("Delete error:", error);
                         setError(error.message);
                       }
                     }

@@ -1,36 +1,37 @@
-import { Search } from 'react-bootstrap-icons';
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import BookCard from './BookCard';
-import Pagination from './Pagination';
+import { Search } from "react-bootstrap-icons";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import BookCard from "./BookCard";
+import Pagination from "./Pagination";
 
 export default function BookCatalog() {
   const navigate = useNavigate();
   const [allBooks, setAllBooks] = useState([]);
   const [displayedBooks, setDisplayedBooks] = useState([]);
-  const [search, setSearch] = useState('');
-  const [message, setMessage] = useState('');
+  const [search, setSearch] = useState("");
+  const [message, setMessage] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [filter, setFilter] = useState('recent');
+  const [filter, setFilter] = useState("recent");
   const [isLoading, setIsLoading] = useState(false);
   const BOOKS_PER_PAGE = 10;
 
   const getImageUrl = (imagePath) => {
-    if (!imagePath) return 'https://via.placeholder.com/200x300?text=Book+Cover';
-    if (imagePath.startsWith('http')) return imagePath;
-    return `http://localhost${imagePath.startsWith('/') ? '' : '/'}${imagePath}`;
+    if (!imagePath)
+      return "https://via.placeholder.com/200x300?text=Book+Cover";
+    if (imagePath.startsWith("http")) return imagePath;
+    return `http://localhost${imagePath.startsWith("/") ? "" : "/"}${imagePath}`;
   };
 
   const applyFilter = (books) => {
     switch (filter) {
-      case 'asc':
+      case "asc":
         return [...books].sort((a, b) => a.title.localeCompare(b.title));
-      case 'desc':
+      case "desc":
         return [...books].sort((a, b) => b.title.localeCompare(a.title));
-      case 'recent':
+      case "recent":
         return [...books].sort((a, b) => b.id - a.id);
-      case 'last':
+      case "last":
         return [...books].sort((a, b) => a.id - b.id);
       default:
         return books;
@@ -42,20 +43,20 @@ export default function BookCatalog() {
       const res = await fetch(
         `http://localhost/online-bookstore/backend/api/books/search.php?q=${search}`
       );
-      if (!res.ok) throw new Error('Search failed');
+      if (!res.ok) throw new Error("Search failed");
       const data = await res.json();
-      
+
       const books = Array.isArray(data) ? data : data.books || [];
       const filteredBooks = applyFilter(books);
       setAllBooks(filteredBooks);
-      
+
       const total = Math.ceil(filteredBooks.length / BOOKS_PER_PAGE);
       setTotalPages(total);
-      
+
       updateDisplayedBooks(filteredBooks, 1);
     } catch (error) {
-      console.error('Fetch error:', error);
-      setMessage('Search failed');
+      console.error("Fetch error:", error);
+      setMessage("Search failed");
       setAllBooks([]);
       setDisplayedBooks([]);
       setTotalPages(1);
@@ -97,7 +98,7 @@ export default function BookCatalog() {
               placeholder="Search books..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && searchBooks()}
+              onKeyPress={(e) => e.key === "Enter" && searchBooks()}
             />
             <button onClick={searchBooks} className="btn btn-primary px-4">
               Search
@@ -116,10 +117,42 @@ export default function BookCatalog() {
                   Filter
                 </button>
                 <ul className="dropdown-menu" aria-labelledby="filterDropdown">
-                  <li><a className="dropdown-item" href="#" onClick={() => setFilter('asc')}>A-Z</a></li>
-                  <li><a className="dropdown-item" href="#" onClick={() => setFilter('desc')}>Z-A</a></li>
-                  <li><a className="dropdown-item" href="#" onClick={() => setFilter('recent')}>Recently Added</a></li>
-                  <li><a className="dropdown-item" href="#" onClick={() => setFilter('last')}>Last Added</a></li>
+                  <li>
+                    <a
+                      className="dropdown-item"
+                      href="#"
+                      onClick={() => setFilter("asc")}
+                    >
+                      A-Z
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      className="dropdown-item"
+                      href="#"
+                      onClick={() => setFilter("desc")}
+                    >
+                      Z-A
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      className="dropdown-item"
+                      href="#"
+                      onClick={() => setFilter("recent")}
+                    >
+                      Recently Added
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      className="dropdown-item"
+                      href="#"
+                      onClick={() => setFilter("last")}
+                    >
+                      Last Added
+                    </a>
+                  </li>
                 </ul>
               </div>
             </div>
@@ -128,7 +161,11 @@ export default function BookCatalog() {
       </div>
 
       {message && (
-        <div className={`alert ${message.includes('success') ? 'alert-success' : 'alert-danger'} mb-4`}>
+        <div
+          className={`alert ${
+            message.includes("success") ? "alert-success" : "alert-danger"
+          } mb-4`}
+        >
           {message}
         </div>
       )}
@@ -142,10 +179,10 @@ export default function BookCatalog() {
           <div className="row row-cols-1 row-cols-md-2 row-cols-xl-5 g-4">
             {displayedBooks.map((book) => (
               <div className="col" key={book.id}>
-                <BookCard 
-                  book={book} 
-                  onClick={() => handleBookClick(book.id)} 
-                  getImageUrl={getImageUrl} // Pass the function here
+                <BookCard
+                  book={book}
+                  onClick={() => handleBookClick(book.id)}
+                  getImageUrl={getImageUrl}
                 />
               </div>
             ))}

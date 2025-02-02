@@ -29,12 +29,10 @@ foreach ($required as $field) {
     }
 }
 
-// Handle image upload
 $imagePath = '';
 if (!empty($_FILES['image'])) {
     $uploadDir = '../../uploads/book_covers/';
     
-    // Create directory if not exists
     if (!is_dir($uploadDir)) {
         mkdir($uploadDir, 0755, true);
     }
@@ -42,7 +40,6 @@ if (!empty($_FILES['image'])) {
     $imageFileName = uniqid() . '_' . basename($_FILES['image']['name']);
     $targetFilePath = $uploadDir . $imageFileName;
 
-    // Validate file
     $imageFileType = strtolower(pathinfo($targetFilePath, PATHINFO_EXTENSION));
     $allowedTypes = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
 
@@ -52,14 +49,13 @@ if (!empty($_FILES['image'])) {
         exit;
     }
 
-    if ($_FILES['image']['size'] > 5 * 1024 * 1024) { // 5MB limit
+    if ($_FILES['image']['size'] > 5 * 1024 * 1024) {
         http_response_code(400);
         echo json_encode(['error' => 'Image too large (max 5MB)']);
         exit;
     }
 
     if (move_uploaded_file($_FILES['image']['tmp_name'], $targetFilePath)) {
-        // Store the URL path for the database
         $imagePath = '/online-bookstore/backend/uploads/book_covers/' . $imageFileName;
     } else {
         http_response_code(500);
@@ -67,7 +63,6 @@ if (!empty($_FILES['image'])) {
         exit;
     }
 
-    // Relative path for database storage
     $imagePath = str_replace('../../', '', $targetFilePath);
 }
 

@@ -25,13 +25,11 @@ export default function AddBook() {
     e.preventDefault();
     const formData = new FormData();
     
-    // Append text fields
     formData.append('title', book.title);
     formData.append('description', book.description);
     formData.append('isbn', book.isbn);
     formData.append('author', book.author);
     
-    // Append image file if exists
     if (book.image) {
       formData.append('image', book.image);
     }
@@ -40,7 +38,7 @@ export default function AddBook() {
       const res = await fetch('http://localhost/online-bookstore/backend/api/books/add.php', {
         method: 'POST',
         credentials: 'include',
-        body: formData, // Use FormData instead of JSON
+        body: formData,
       });
 
       const data = await res.json();

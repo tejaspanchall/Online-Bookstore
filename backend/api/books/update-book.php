@@ -55,15 +55,12 @@ if (!empty($_FILES['image'])) {
     }
 
     if (move_uploaded_file($_FILES['image']['tmp_name'], $targetFilePath)) {
-        // Get old image path to delete
         $stmt = $pdo->prepare("SELECT image FROM books WHERE id = ?");
         $stmt->execute([$_POST['id']]);
         $oldImage = $stmt->fetchColumn();
 
-        // Set new image path for database
         $imagePath = '/online-bookstore/backend/uploads/book_covers/' . $imageFileName;
 
-        // Delete old image if exists
         if ($oldImage) {
             $oldImagePath = str_replace('/online-bookstore/backend', '..', $oldImage);
             if (file_exists($oldImagePath)) {

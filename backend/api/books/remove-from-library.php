@@ -1,5 +1,4 @@
 <?php
-// remove-from-library.php
 require_once '../../config/database.php';
 session_start();
 
@@ -17,14 +16,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
-// Ensure the user is logged in
 if (!isset($_SESSION['user_id'])) {
     http_response_code(401);
     echo json_encode(['error' => 'Unauthorized']);
     exit;
 }
 
-// Get and decode the JSON request data
 $json = file_get_contents('php://input');
 $data = json_decode($json, true);
 

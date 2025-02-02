@@ -13,14 +13,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
-// Basic authentication check
 if (!isset($_SESSION['user_id'])) {
     http_response_code(401);
     echo json_encode(['error' => 'Unauthorized']);
     exit;
 }
 
-// Get and parse JSON input
 $json = file_get_contents('php://input');
 $data = json_decode($json, true);
 
@@ -31,11 +29,9 @@ if (!$data || !isset($data['id'])) {
 }
 
 try {
-    // First, delete associated user_books entries
     $stmt = $pdo->prepare("DELETE FROM user_books WHERE book_id = :id");
     $stmt->execute([':id' => $data['id']]);
 
-    // Then delete the book
     $stmt = $pdo->prepare("DELETE FROM books WHERE id = :id");
     $stmt->execute([':id' => $data['id']]);
 
