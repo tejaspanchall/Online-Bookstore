@@ -29,7 +29,7 @@ foreach ($required as $field) {
     }
 }
 
-$imagePath = '';
+$imagePath = null;
 if (!empty($_FILES['image'])) {
     $uploadDir = '../../uploads/book_covers/';
     
@@ -62,8 +62,6 @@ if (!empty($_FILES['image'])) {
         echo json_encode(['error' => 'Failed to upload image']);
         exit;
     }
-
-    $imagePath = str_replace('../../', '', $targetFilePath);
 }
 
 try {
@@ -74,37 +72,28 @@ try {
     $existingBook = $stmt->fetch();
 
     if ($existingBook) {
-        $bookId = $existingBook['id'];
-    } else {
-        $stmt = $pdo->prepare("INSERT INTO books (title, image, description, isbn, author) VALUES (?, ?, ?, ?, ?)");
-        $stmt->execute([
-            $_POST['title'],
-            $imagePath,
-            $_POST['description'],
-            $_POST['isbn'],
-            $_POST['author']
-        ]);
-        $bookId = $pdo->lastInsertId();
-    }
-
-    $stmt = $pdo->prepare("SELECT * FROM user_books WHERE user_id = ? AND book_id = ?");
-    $stmt->execute([$_SESSION['user_id'], $bookId]);
-
-    if ($stmt->fetch()) {
         $pdo->rollBack();
         http_response_code(400);
-        echo json_encode(['error' => 'This book is already in your library']);
+        echo json_encode(['error' => 'A book with this ISBN already exists']);
         exit;
     }
 
-    $stmt = $pdo->prepare("INSERT INTO user_books (user_id, book_id) VALUES (?, ?)");
-    $stmt->execute([$_SESSION['user_id'], $bookId]);
+    $stmt = $pdo->prepare("INSERT INTO books (title, image, description, isbn, author) VALUES (?, ?, ?, ?, ?)");
+    $stmt->execute([
+        $_POST['title'],
+        $imagePath,
+        $_POST['description'],
+        $_POST['isbn'],
+        $_POST['author']
+    ]);
+    $bookId = $pdo->lastInsertId();
 
     $pdo->commit();
     echo json_encode([
         'status' => 'success',
         'message' => 'Book added successfully',
-        'id' => $bookId
+        'id' => $bookId,
+        'image_path' => $imagePath
     ]);
 
 } catch (PDOException $e) {

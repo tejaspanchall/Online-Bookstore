@@ -1,18 +1,30 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import BookCard from "./BookCard";
+import Pagination from "./Pagination";
 
 export default function MyLibrary() {
   const navigate = useNavigate();
-  const [books, setBooks] = useState([]);
+  const [allBooks, setAllBooks] = useState([]);
+  const [displayedBooks, setDisplayedBooks] = useState([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const BOOKS_PER_PAGE = 10;
 
   const getImageUrl = (imagePath) => {
     if (!imagePath)
       return "https://via.placeholder.com/200x300?text=Book+Cover";
     if (imagePath.startsWith("http")) return imagePath;
     return `http://localhost${imagePath.startsWith("/") ? "" : "/"}${imagePath}`;
+  };
+
+  const updateDisplayedBooks = (books, page) => {
+    const startIndex = (page - 1) * BOOKS_PER_PAGE;
+    const endIndex = startIndex + BOOKS_PER_PAGE;
+    setDisplayedBooks(books.slice(startIndex, endIndex));
+    setCurrentPage(page);
   };
 
   useEffect(() => {
@@ -39,7 +51,13 @@ export default function MyLibrary() {
         }
 
         const data = await res.json();
-        setBooks(Array.isArray(data) ? data : []);
+        const books = Array.isArray(data) ? data : [];
+        setAllBooks(books);
+        
+        const total = Math.ceil(books.length / BOOKS_PER_PAGE);
+        setTotalPages(total);
+        
+        updateDisplayedBooks(books, 1);
       } catch (error) {
         console.error("Fetch error:", error);
         setError("Failed to fetch library");
@@ -85,7 +103,7 @@ export default function MyLibrary() {
         </button>
       </div>
 
-      {books.length === 0 ? (
+      {allBooks.length === 0 ? (
         <div className="text-center py-5">
           <p className="text-muted mb-4">Your library is empty</p>
           <div className="d-flex justify-content-center">
@@ -98,17 +116,27 @@ export default function MyLibrary() {
           </div>
         </div>
       ) : (
-        <div className="row row-cols-1 row-cols-md-2 row-cols-xl-5 g-4">
-          {books.map((book) => (
-            <div className="col" key={book.id}>
-              <BookCard
-                book={book}
-                onClick={() => navigate(`/book/${book.id}`)}
-                getImageUrl={getImageUrl}
-              />
-            </div>
-          ))}
-        </div>
+        <>
+          <div className="row row-cols-1 row-cols-md-2 row-cols-xl-5 g-4">
+            {displayedBooks.map((book) => (
+              <div className="col" key={book.id}>
+                <BookCard
+                  book={book}
+                  onClick={() => navigate(`/book/${book.id}`)}
+                  getImageUrl={getImageUrl}
+                />
+              </div>
+            ))}
+          </div>
+
+          {totalPages > 1 && (
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={(page) => updateDisplayedBooks(allBooks, page)}
+            />
+          )}
+        </>
       )}
     </div>
   );
