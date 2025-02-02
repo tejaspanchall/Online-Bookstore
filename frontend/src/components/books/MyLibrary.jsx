@@ -43,8 +43,7 @@ export default function MyLibrary() {
 
         if (!res.ok) {
           if (res.status === 401) {
-            setError("Please login to view your library");
-            setTimeout(() => navigate("/login"), 2000);
+            navigate("/login");
             return;
           }
           throw new Error("Failed to fetch library");
@@ -53,10 +52,10 @@ export default function MyLibrary() {
         const data = await res.json();
         const books = Array.isArray(data) ? data : [];
         setAllBooks(books);
-        
+
         const total = Math.ceil(books.length / BOOKS_PER_PAGE);
         setTotalPages(total);
-        
+
         updateDisplayedBooks(books, 1);
       } catch (error) {
         console.error("Fetch error:", error);

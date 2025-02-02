@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AuthForm from '../auth/AuthForm';
 
@@ -13,48 +13,71 @@ export default function AddBook() {
   });
   const [message, setMessage] = useState('');
 
+  useEffect(() => {
+    const checkSession = async () => {
+      try {
+        const res = await fetch(
+          'http://localhost/online-bookstore/backend/api/books/add.php',
+          {
+            method: 'GET',
+            credentials: 'include',
+          }
+        );
+        if (!res.ok) {
+          navigate('/login');
+        }
+      } catch (error) {
+        console.error('Error checking session:', error);
+        navigate('/login');
+      }
+    };
+
+    checkSession();
+  }, [navigate]);
+
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     setBook(prev => ({
       ...prev,
-      image: file
+      image: file,
     }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData();
-    
+
     formData.append('title', book.title);
     formData.append('description', book.description);
     formData.append('isbn', book.isbn);
     formData.append('author', book.author);
-    
+
     if (book.image) {
       formData.append('image', book.image);
     }
 
     try {
-      const res = await fetch('http://localhost/online-bookstore/backend/api/books/add.php', {
-        method: 'POST',
-        credentials: 'include',
-        body: formData,
-      });
+      const res = await fetch(
+        'http://localhost/online-bookstore/backend/api/books/add.php',
+        {
+          method: 'POST',
+          credentials: 'include',
+          body: formData,
+        }
+      );
 
       const data = await res.json();
-      
+
       if (!res.ok) {
         if (res.status === 401) {
-          setMessage('Session expired. Please log in again.');
-          setTimeout(() => navigate('/login'), 2000);
+          navigate('/login');
           return;
         }
         throw new Error(data.error || 'Failed to add book');
       }
 
       setMessage('Book added successfully!');
-      setTimeout(() => navigate('/'), 2000);
-
+      navigate('/');
     } catch (error) {
       console.error('Error details:', error);
       setMessage(error.message || 'Failed to connect to server');
