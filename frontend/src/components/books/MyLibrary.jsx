@@ -1,17 +1,17 @@
+// MyLibrary.jsx
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import BookCard from './BookCard';
-import BookPopup from './BookPopup';
 
 export default function MyLibrary() {
   const navigate = useNavigate();
   const [books, setBooks] = useState([]);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
-  const [selectedBook, setSelectedBook] = useState(null);
 
   const getImageUrl = (imagePath) => {
-    if (!imagePath) return 'https://via.placeholder.com/200x300?text=Book+Cover';
+    if (!imagePath)
+      return 'https://via.placeholder.com/200x300?text=Book+Cover';
     if (imagePath.startsWith('http')) return imagePath;
     return `http://localhost${imagePath.startsWith('/') ? '' : '/'}${imagePath}`;
   };
@@ -20,16 +20,16 @@ export default function MyLibrary() {
     const fetchMyLibrary = async () => {
       try {
         const res = await fetch(
-          'http://localhost/online-bookstore/backend/api/books/get-library.php', 
+          'http://localhost/online-bookstore/backend/api/books/get-library.php',
           {
             method: 'GET',
             credentials: 'include',
             headers: {
-              'Content-Type': 'application/json'
-            }
+              'Content-Type': 'application/json',
+            },
           }
         );
-        
+
         if (!res.ok) {
           if (res.status === 401) {
             setError('Please login to view your library');
@@ -41,7 +41,6 @@ export default function MyLibrary() {
 
         const data = await res.json();
         setBooks(Array.isArray(data) ? data : []);
-
       } catch (error) {
         console.error('Fetch error:', error);
         setError('Failed to fetch library');
@@ -56,7 +55,10 @@ export default function MyLibrary() {
   if (loading) {
     return (
       <div className="container py-5">
-        <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '200px' }}>
+        <div
+          className="d-flex justify-content-center align-items-center"
+          style={{ minHeight: '200px' }}
+        >
           <div className="spinner-border text-primary" role="status">
             <span className="visually-hidden">Loading...</span>
           </div>
@@ -79,10 +81,7 @@ export default function MyLibrary() {
     <div className="container py-5">
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h2>My Library</h2>
-        <button 
-          className="btn btn-primary"
-          onClick={() => navigate('/')}
-        >
+        <button className="btn btn-primary" onClick={() => navigate('/')}>
           Browse More Books
         </button>
       </div>
@@ -91,7 +90,7 @@ export default function MyLibrary() {
         <div className="text-center py-5">
           <p className="text-muted mb-4">Your library is empty</p>
           <div className="d-flex justify-content-center">
-            <button 
+            <button
               className="btn btn-lg btn-primary"
               onClick={() => navigate('/')}
             >
@@ -101,24 +100,16 @@ export default function MyLibrary() {
         </div>
       ) : (
         <div className="row row-cols-1 row-cols-md-2 row-cols-xl-5 g-4">
-          {books.map(book => (
+          {books.map((book) => (
             <div className="col" key={book.id}>
-              <BookCard 
+              <BookCard
                 book={book}
-                onClick={() => setSelectedBook(book)}
-                getImageUrl={getImageUrl} // Pass the function here
+                onClick={() => navigate(`/book/${book.id}`)}
+                getImageUrl={getImageUrl}
               />
             </div>
           ))}
         </div>
-      )}
-
-      {selectedBook && (
-        <BookPopup
-          book={selectedBook}
-          onClose={() => setSelectedBook(null)}
-          onAddToLibrary={null}
-        />
       )}
     </div>
   );
