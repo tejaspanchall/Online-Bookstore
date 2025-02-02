@@ -21,7 +21,6 @@ const BookCard = ({ book, onClick, getImageUrl }) => {
       </div>
       <div className="card-body">
         <h5 className="card-title">{book.title}</h5>
-        <p className="card-text">{book.author}</p>
       </div>
     </div>
   );
