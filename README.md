@@ -11,7 +11,7 @@
 - **Feature 5**: User's can add Books to his/her personal library.
 - **Feature 6**: Pagination (10 Books/Page)
 - **Feature 7**: Filter (A-Z, Z-A, Recently Added, Last Added)
-- **Feature 8**: Role Based Access Control
+- **Feature 8**: Role Based Access Control (Teacher and Student)
 - **Feature 9**: Lazy Load
 
 ## Installation
