@@ -19,6 +19,22 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
+try {
+    $stmt = $pdo->prepare("SELECT role FROM users WHERE id = ?");
+    $stmt->execute([$_SESSION['user_id']]);
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($user['role'] !== 'teacher') {
+        http_response_code(403);
+        echo json_encode(['error' => 'Only teachers can delete books']);
+        exit;
+    }
+} catch(PDOException $e) {
+    http_response_code(500);
+    echo json_encode(['error' => 'Database error']);
+    exit;
+}
+
 $json = file_get_contents('php://input');
 $data = json_decode($json, true);
 

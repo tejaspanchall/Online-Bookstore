@@ -11,6 +11,7 @@ export default function BookDetail() {
   const [newImage, setNewImage] = useState(null);
   const [error, setError] = useState(null);
   const [inLibrary, setInLibrary] = useState(false);
+  const [userRole, setUserRole] = useState(null);
 
   const fetchBook = async () => {
     try {
@@ -62,6 +63,20 @@ export default function BookDetail() {
     }
   };
 
+  const fetchUserRole = async () => {
+    try {
+      const res = await fetch('http://localhost/online-bookstore/backend/api/auth/get-role.php', {
+        credentials: 'include'
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setUserRole(data.role);
+      }
+    } catch (error) {
+      console.error('Error fetching user role:', error);
+    }
+  };
+
   const getImageUrl = (imagePath) => {
     if (!imagePath)
       return "https://via.placeholder.com/200x300?text=Book+Cover";
@@ -72,6 +87,10 @@ export default function BookDetail() {
   useEffect(() => {
     fetchBook();
   }, [id]);
+
+  useEffect(() => {
+    fetchUserRole();
+  }, []);
 
   useEffect(() => {
     if (book) {
@@ -189,6 +208,32 @@ export default function BookDetail() {
     } catch (error) {
       console.error("Remove error:", error);
       setError(error.message);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (window.confirm("Are you sure you want to delete this book?")) {
+      try {
+        const res = await fetch(
+          "http://localhost/online-bookstore/backend/api/books/delete-book.php",
+          {
+            method: "POST",
+            credentials: "include",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ id: book.id }),
+          }
+        );
+        if (!res.ok) {
+          const errorData = await res.json();
+          throw new Error(errorData.error || "Failed to delete book");
+        }
+        navigate("/catalog");
+      } catch (error) {
+        console.error("Delete error:", error);
+        setError(error.message);
+      }
     }
   };
 
@@ -325,45 +370,16 @@ export default function BookDetail() {
                     Add to Library
                   </button>
                 )}
-                <button className="btn btn-primary" onClick={handleEditToggle}>
-                  Edit Book
-                </button>
-                <button
-                  className="btn btn-danger"
-                  onClick={async () => {
-                    if (
-                      window.confirm(
-                        "Are you sure you want to delete this book?"
-                      )
-                    ) {
-                      try {
-                        const res = await fetch(
-                          "http://localhost/online-bookstore/backend/api/books/delete-book.php",
-                          {
-                            method: "POST",
-                            credentials: "include",
-                            headers: {
-                              "Content-Type": "application/json",
-                            },
-                            body: JSON.stringify({ id: book.id }),
-                          }
-                        );
-                        if (!res.ok) {
-                          const errorData = await res.json();
-                          throw new Error(
-                            errorData.error || "Failed to delete book"
-                          );
-                        }
-                        navigate("/catalog");
-                      } catch (error) {
-                        console.error("Delete error:", error);
-                        setError(error.message);
-                      }
-                    }
-                  }}
-                >
-                  Delete Book
-                </button>
+                {userRole === 'teacher' && (
+                  <>
+                    <button className="btn btn-primary" onClick={handleEditToggle}>
+                      Edit Book
+                    </button>
+                    <button className="btn btn-danger" onClick={handleDelete}>
+                      Delete Book
+                    </button>
+                  </>
+                )}
                 <button
                   className="btn btn-secondary"
                   onClick={() => navigate(-1)}

@@ -5,10 +5,11 @@ import { PersonFill, JournalBookmark, PlusCircle } from 'react-bootstrap-icons';
 export default function Navbar() {
   const navigate = useNavigate();
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('user'));
+  const [userRole, setUserRole] = useState(null);
 
-useEffect(() => {
-  console.log('Auth state changed. Is logged in:', isLoggedIn);
-}, [isLoggedIn]);
+  useEffect(() => {
+    console.log('Auth state changed. Is logged in:', isLoggedIn);
+  }, [isLoggedIn]);
 
   useEffect(() => {
     const checkAuth = () => {
@@ -26,6 +27,26 @@ useEffect(() => {
     };
   }, []);
 
+  useEffect(() => {
+    const fetchUserRole = async () => {
+      if (isLoggedIn) {
+        try {
+          const response = await fetch('http://localhost/online-bookstore/backend/api/auth/get-role.php', {
+            credentials: 'include'
+          });
+          if (response.ok) {
+            const data = await response.json();
+            setUserRole(data.role);
+          }
+        } catch (error) {
+          console.error('Error fetching user role:', error);
+        }
+      }
+    };
+
+    fetchUserRole();
+  }, [isLoggedIn]);
+
   const handleLogout = async () => {
     try {
       const response = await fetch('http://localhost/online-bookstore/backend/api/auth/logout.php', {
@@ -36,6 +57,7 @@ useEffect(() => {
       if (response.ok) {
         localStorage.removeItem('user');
         setIsLoggedIn(false);
+        setUserRole(null);
         
         window.dispatchEvent(new Event('storage'));
         window.dispatchEvent(new Event('loginStateChange'));
@@ -73,11 +95,13 @@ useEffect(() => {
                     <PersonFill /> My Library
                   </NavLink>
                 </li>
-                <li className="nav-item">
-                  <NavLink to="/add-book" className="btn btn-primary d-flex align-items-center gap-1">
-                    <PlusCircle /> Add Book
-                  </NavLink>
-                </li>
+                {userRole === 'teacher' && (
+                  <li className="nav-item">
+                    <NavLink to="/add-book" className="btn btn-primary d-flex align-items-center gap-1">
+                      <PlusCircle /> Add Book
+                    </NavLink>
+                  </li>
+                )}
                 <li className="nav-item">
                   <button 
                     onClick={handleLogout} 

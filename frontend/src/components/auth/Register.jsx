@@ -9,7 +9,8 @@ export default function Register() {
     lastname: '',
     email: '',
     confirmEmail: '',
-    password: ''
+    password: '',
+    role: 'student' // default to student
   });
 
   const handleSubmit = async (e) => {
@@ -29,7 +30,8 @@ export default function Register() {
           firstname: form.firstname,
           lastname: form.lastname,
           email: form.email,
-          password: form.password
+          password: form.password,
+          role: form.role
         })
       });
   
@@ -73,6 +75,18 @@ export default function Register() {
             required
           />
         </div>
+      </div>
+
+      <div className="mt-3">
+        <select 
+          className="form-select bg-dark text-white"
+          value={form.role}
+          onChange={e => setForm({...form, role: e.target.value})}
+          required
+        >
+          <option value="student">Student</option>
+          <option value="teacher">Teacher</option>
+        </select>
       </div>
 
       <div className="mt-3">

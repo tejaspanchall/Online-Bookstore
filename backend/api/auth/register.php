@@ -15,13 +15,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 $data = json_decode(file_get_contents('php://input'), true);
 
-$required = ['firstname', 'lastname', 'email', 'password'];
+$required = ['firstname', 'lastname', 'email', 'password', 'role'];
 foreach ($required as $field) {
     if (empty($data[$field])) {
         http_response_code(400);
         echo json_encode(['error' => "Missing required field: $field"]);
         exit;
     }
+}
+
+// Validate role
+if (!in_array($data['role'], ['teacher', 'student'])) {
+    http_response_code(400);
+    echo json_encode(['error' => 'Invalid role']);
+    exit;
 }
 
 try {
@@ -36,12 +43,13 @@ try {
 
     $hashedPassword = password_hash($data['password'], PASSWORD_DEFAULT);
 
-    $stmt = $pdo->prepare("INSERT INTO users (firstname, lastname, email, password) VALUES (?, ?, ?, ?)");
+    $stmt = $pdo->prepare("INSERT INTO users (firstname, lastname, email, password, role) VALUES (?, ?, ?, ?, ?)");
     $stmt->execute([
         $data['firstname'],
         $data['lastname'],
         $data['email'],
-        $hashedPassword
+        $hashedPassword,
+        $data['role']
     ]);
 
     echo json_encode(['status' => 'success']);

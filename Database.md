@@ -55,6 +55,13 @@ CREATE TABLE user_books (
     book_id INTEGER REFERENCES books(id),
     PRIMARY KEY (user_id, book_id)
 );
+
+ALTER TABLE users ADD COLUMN role VARCHAR(20) NOT NULL DEFAULT 'student';
+
+UPDATE users SET role = 'teacher';
+
+ALTER TABLE users
+ADD CONSTRAINT valid_role CHECK (role IN ('teacher', 'student'));
 ```
 
 ## Setup Instructions
