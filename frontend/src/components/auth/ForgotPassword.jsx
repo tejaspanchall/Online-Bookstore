@@ -2,7 +2,7 @@ import { useState } from 'react';
 import AuthForm from './AuthForm';
 
 export default function ForgotPassword() {
-  const BACKEND = "backend-production-5a9b.up.railway.app";
+  const BACKEND = "https://backend-production-5a9b.up.railway.app";
 
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
