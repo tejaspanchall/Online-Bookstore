@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import AuthForm from './AuthForm';
 
 export default function Register() {
-  const BACKEND = "http://online-bookstore.railway.internal";
+  const BACKEND = "backend-production-5a9b.up.railway.app";
 
   const navigate = useNavigate();
   const [form, setForm] = useState({
