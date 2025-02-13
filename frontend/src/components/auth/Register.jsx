@@ -12,7 +12,7 @@ export default function Register() {
     email: '',
     confirmEmail: '',
     password: '',
-    role: 'student' // default to student
+    role: 'student'
   });
 
   const handleSubmit = async (e) => {
