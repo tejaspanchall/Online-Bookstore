@@ -1,9 +1,9 @@
 <?php
 $db_config = [
-    'host' => 'localhost',
-    'dbname' => 'bookstore',
+    'host' => 'postgres.railway.internal',
+    'dbname' => 'railway',
     'user' => 'postgres',
-    'password' => 'root'
+    'password' => 'RSLLHhIyrWqduCsBMpFBjdNHnvmHXEBk'
 ];
 
 try {
