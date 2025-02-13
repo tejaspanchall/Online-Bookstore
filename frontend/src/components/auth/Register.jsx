@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import AuthForm from './AuthForm';
 
 export default function Register() {
+  const BACKEND = "http://online-bookstore.railway.internal";
+
   const navigate = useNavigate();
   const [form, setForm] = useState({
     firstname: '',
@@ -22,7 +24,7 @@ export default function Register() {
     }
   
     try {
-      const res = await fetch('http://localhost/online-bookstore/backend/api/auth/register.php', {
+      const res = await fetch(`${BACKEND}/online-bookstore/backend/api/auth/register.php`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
