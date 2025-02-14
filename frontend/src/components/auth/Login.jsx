@@ -3,8 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import AuthForm from './AuthForm';
 
 export default function Login() {
-  const BACKEND = "https://backend-production-5a9b.up.railway.app";
-
   const navigate = useNavigate();
   const [form, setForm] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
@@ -12,7 +10,7 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch(`${BACKEND}/api/auth/login.php`, {
+      const res = await fetch('https://backend-production-5a9b.up.railway.app/api/auth/login.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',

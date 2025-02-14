@@ -2,15 +2,13 @@ import { useState } from 'react';
 import AuthForm from './AuthForm';
 
 export default function ForgotPassword() {
-  const BACKEND = "https://backend-production-5a9b.up.railway.app";
-
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch(`${BACKEND}/api/auth/forgot-password.php`, {
+      const res = await fetch('https://backend-production-5a9b.up.railway.app/api/auth/forgot-password.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email })
