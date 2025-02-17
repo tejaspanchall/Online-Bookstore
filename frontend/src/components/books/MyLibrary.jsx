@@ -31,7 +31,7 @@ export default function MyLibrary() {
     const fetchMyLibrary = async () => {
       try {
         const res = await fetch(
-          "https://backend-production-5a9b.up.railway.app/api/books/get-library.php",
+          "http://localhost/online-bookstore/backend/api/books/get-library.php",
           {
             method: "GET",
             credentials: "include",

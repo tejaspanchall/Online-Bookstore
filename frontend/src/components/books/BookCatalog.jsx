@@ -41,7 +41,7 @@ export default function BookCatalog() {
   const searchBooks = async () => {
     try {
       const res = await fetch(
-        `https://backend-production-5a9b.up.railway.app/api/books/search.php?q=${search}`
+        `http://localhost/online-bookstore/backend/api/books/search.php?q=${search}`
       );
       if (!res.ok) throw new Error("Search failed");
       const data = await res.json();

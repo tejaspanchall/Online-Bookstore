@@ -10,7 +10,7 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch('https://backend-production-5a9b.up.railway.app/api/auth/login.php', {
+      const res = await fetch('http://localhost/online-bookstore/backend/api/auth/login.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',

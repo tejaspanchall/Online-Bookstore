@@ -32,7 +32,7 @@ export default function ResetPassword() {
     }
 
     try {
-      const res = await fetch('https://backend-production-5a9b.up.railway.app/api/auth/reset-password.php', {
+      const res = await fetch('http://localhost/online-bookstore/backend/api/auth/reset-password.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
