@@ -1,5 +1,6 @@
 <?php
 require_once '../../config/database.php';
+require_once __DIR__ . '/../../vendor/autoload.php';
 
 session_start();
 
@@ -19,8 +20,12 @@ if (ini_get("session.use_cookies")) {
 }
 
 session_destroy();
+use Dotenv\Dotenv;
 
-header('Access-Control-Allow-Origin: http://localhost:3000');
+$dotenv = Dotenv::createImmutable(__DIR__ . '/../../');
+$dotenv->load();
+
+header('Access-Control-Allow-Origin: ' . $_ENV['FRONTEND']);
 header('Access-Control-Allow-Credentials: true');
 header('Content-Type: application/json');
 

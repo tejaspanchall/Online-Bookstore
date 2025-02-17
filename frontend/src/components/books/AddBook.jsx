@@ -1,86 +1,56 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AuthForm from '../auth/AuthForm';
 
 export default function AddBook() {
+  const BACKEND = process.env.REACT_APP_BACKEND;
   const navigate = useNavigate();
   const [book, setBook] = useState({
     title: '',
-    image: null,
+    imageUrl: '',
     description: '',
     isbn: '',
     author: '',
   });
   const [message, setMessage] = useState('');
-
-  useEffect(() => {
-    const checkSession = async () => {
-      try {
-        const res = await fetch(
-          'http://localhost/online-bookstore/backend/api/books/add.php',
-          {
-            method: 'GET',
-            credentials: 'include',
-          }
-        );
-        if (!res.ok) {
-          navigate('/login');
-        }
-      } catch (error) {
-        console.error('Error checking session:', error);
-        navigate('/login');
-      }
-    };
-
-    checkSession();
-  }, [navigate]);
-
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    setBook(prev => ({
-      ...prev,
-      image: file,
-    }));
-  };
+  const [isError, setIsError] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const formData = new FormData();
-
-    formData.append('title', book.title);
-    formData.append('description', book.description);
-    formData.append('isbn', book.isbn);
-    formData.append('author', book.author);
-
-    if (book.image) {
-      formData.append('image', book.image);
-    }
-
+    setMessage('');
+    setIsError(false);
+    
     try {
       const res = await fetch(
-        'http://localhost/online-bookstore/backend/api/books/add.php',
+        `${BACKEND}/books/add.php`,
         {
           method: 'POST',
           credentials: 'include',
-          body: formData,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            title: book.title.trim(),
+            image: book.imageUrl.trim(),
+            description: book.description.trim(),
+            isbn: book.isbn.trim(),
+            author: book.author.trim(),
+          }),
         }
       );
 
       const data = await res.json();
 
       if (!res.ok) {
-        if (res.status === 401) {
-          navigate('/login');
-          return;
-        }
         throw new Error(data.error || 'Failed to add book');
       }
 
       setMessage('Book added successfully!');
-      navigate('/');
+      setIsError(false);
+      setTimeout(() => navigate('/catalog'), 1500);
     } catch (error) {
-      console.error('Error details:', error);
       setMessage(error.message || 'Failed to connect to server');
+      setIsError(true);
     }
   };
 
@@ -88,7 +58,7 @@ export default function AddBook() {
     <AuthForm
       onSubmit={handleSubmit}
       title="Add New Book"
-      footerLink={{ to: '/', text: 'Back to Home' }}
+      footerLink={{ to: '/catalog', text: 'Back to Catalog' }}
     >
       <div className="mb-3">
         <input
@@ -102,10 +72,12 @@ export default function AddBook() {
       </div>
       <div className="mb-3">
         <input
-          type="file"
+          type="url"
           className="form-control bg-dark text-white"
-          onChange={handleFileChange}
-          accept="image/*"
+          placeholder="Image URL"
+          value={book.imageUrl}
+          onChange={(e) => setBook({ ...book, imageUrl: e.target.value })}
+          required
         />
       </div>
       <div className="mb-3">
@@ -142,7 +114,7 @@ export default function AddBook() {
         Add Book
       </button>
       {message && (
-        <div className={`mt-3 alert ${message.includes('success') ? 'alert-success' : 'alert-danger'}`}>
+        <div className={`mt-3 alert ${isError ? 'alert-danger' : 'alert-success'}`}>
           {message}
         </div>
       )}

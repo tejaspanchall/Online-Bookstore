@@ -3,17 +3,22 @@ import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { PersonFill, JournalBookmark, PlusCircle } from 'react-bootstrap-icons';
 
 export default function Navbar() {
+  const BACKEND = process.env.REACT_APP_BACKEND;
   const navigate = useNavigate();
-  const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('user'));
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userRole, setUserRole] = useState(null);
 
   useEffect(() => {
-    console.log('Auth state changed. Is logged in:', isLoggedIn);
-  }, [isLoggedIn]);
-
-  useEffect(() => {
     const checkAuth = () => {
-      setIsLoggedIn(!!localStorage.getItem('user'));
+      const userData = localStorage.getItem('user');
+      if (userData) {
+        const user = JSON.parse(userData);
+        setIsLoggedIn(true);
+        setUserRole(user.role);
+      } else {
+        setIsLoggedIn(false);
+        setUserRole(null);
+      }
     };
 
     checkAuth();
@@ -27,29 +32,9 @@ export default function Navbar() {
     };
   }, []);
 
-  useEffect(() => {
-    const fetchUserRole = async () => {
-      if (isLoggedIn) {
-        try {
-          const response = await fetch('http://localhost/online-bookstore/backend/api/auth/get-role.php', {
-            credentials: 'include'
-          });
-          if (response.ok) {
-            const data = await response.json();
-            setUserRole(data.role);
-          }
-        } catch (error) {
-          console.error('Error fetching user role:', error);
-        }
-      }
-    };
-
-    fetchUserRole();
-  }, [isLoggedIn]);
-
   const handleLogout = async () => {
     try {
-      const response = await fetch('http://localhost/online-bookstore/backend/api/auth/logout.php', {
+      const response = await fetch(`${BACKEND}/auth/logout.php`, {
         method: 'POST',
         credentials: 'include', 
       });

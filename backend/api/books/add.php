@@ -1,9 +1,14 @@
 <?php
 require_once '../../config/database.php';
+require_once __DIR__ . '/../../vendor/autoload.php';
+use Dotenv\Dotenv;
+
+$dotenv = Dotenv::createImmutable(__DIR__ . '/../../');
+$dotenv->load();
 
 session_start();
 
-header('Access-Control-Allow-Origin: http://localhost:3000');
+header('Access-Control-Allow-Origin: ' . $_ENV['FRONTEND']);
 header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type');
 header('Access-Control-Allow-Credentials: true');
@@ -14,20 +19,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit(0);
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    if (!isset($_SESSION['user_id'])) {
-        http_response_code(401);
-        echo json_encode(['error' => 'Please login to continue']);
-    } else {
-        echo json_encode(['success' => true, 'message' => 'User is logged in']);
-    }
+function sendResponse($data, $statusCode = 200) {
+    http_response_code($statusCode);
+    echo json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     exit;
 }
 
 if (!isset($_SESSION['user_id'])) {
-    http_response_code(401);
-    echo json_encode(['error' => 'Please login to continue']);
-    exit;
+    sendResponse(['error' => 'Please login to continue'], 401);
 }
 
 try {
@@ -35,99 +34,81 @@ try {
     $stmt->execute([$_SESSION['user_id']]);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if ($user['role'] !== 'teacher') {
-        http_response_code(403);
-        echo json_encode(['error' => 'Only teachers can add books']);
-        exit;
+    if (!$user || $user['role'] !== 'teacher') {
+        sendResponse(['error' => 'Only teachers can add books'], 403);
     }
 } catch(PDOException $e) {
-    http_response_code(500);
-    echo json_encode(['error' => 'Database error']);
-    exit;
+    error_log('Database error: ' . $e->getMessage());
+    sendResponse(['error' => 'Server error occurred'], 500);
 }
 
-$required = ['title', 'description', 'isbn', 'author'];
+$json = file_get_contents('php://input');
+if (!$json) {
+    sendResponse(['error' => 'No data received'], 400);
+}
+
+$data = json_decode($json, true);
+if (json_last_error() !== JSON_ERROR_NONE) {
+    sendResponse(['error' => 'Invalid JSON data: ' . json_last_error_msg()], 400);
+}
+
+$required = ['title', 'description', 'isbn', 'author', 'image'];
 foreach ($required as $field) {
-    if (empty($_POST[$field])) {
-        http_response_code(400);
-        echo json_encode(['error' => "Missing required field: $field"]);
-        exit;
+    if (!isset($data[$field]) || trim($data[$field]) === '') {
+        sendResponse(['error' => "Missing required field: $field"], 400);
     }
+    $data[$field] = trim($data[$field]);
 }
 
-$imagePath = null;
-if (!empty($_FILES['image'])) {
-    $uploadDir = '../../uploads/book_covers/';
-    
-    if (!is_dir($uploadDir)) {
-        mkdir($uploadDir, 0755, true);
-    }
-
-    $imageFileName = uniqid() . '_' . basename($_FILES['image']['name']);
-    $targetFilePath = $uploadDir . $imageFileName;
-
-    $imageFileType = strtolower(pathinfo($targetFilePath, PATHINFO_EXTENSION));
-    $allowedTypes = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
-
-    if (!in_array($imageFileType, $allowedTypes)) {
-        http_response_code(400);
-        echo json_encode(['error' => 'Invalid image type']);
-        exit;
-    }
-
-    if ($_FILES['image']['size'] > 5 * 1024 * 1024) {
-        http_response_code(400);
-        echo json_encode(['error' => 'Image too large (max 5MB)']);
-        exit;
-    }
-
-    if (move_uploaded_file($_FILES['image']['tmp_name'], $targetFilePath)) {
-        $imagePath = '/online-bookstore/backend/uploads/book_covers/' . $imageFileName;
-    } else {
-        http_response_code(500);
-        echo json_encode(['error' => 'Failed to upload image']);
-        exit;
-    }
+if (!filter_var($data['image'], FILTER_VALIDATE_URL)) {
+    sendResponse(['error' => 'Invalid image URL'], 400);
 }
 
 try {
     $pdo->beginTransaction();
 
     $stmt = $pdo->prepare("SELECT id FROM books WHERE isbn = ?");
-    $stmt->execute([$_POST['isbn']]);
-    $existingBook = $stmt->fetch();
-
-    if ($existingBook) {
+    $stmt->execute([$data['isbn']]);
+    if ($stmt->fetch()) {
         $pdo->rollBack();
-        http_response_code(400);
-        echo json_encode(['error' => 'A book with this ISBN already exists']);
-        exit;
+        sendResponse(['error' => 'A book with this ISBN already exists'], 400);
     }
 
-    $stmt = $pdo->prepare("INSERT INTO books (title, image, description, isbn, author) VALUES (?, ?, ?, ?, ?)");
+    $stmt = $pdo->prepare("
+        INSERT INTO books (title, image, description, isbn, author) 
+        VALUES (?, ?, ?, ?, ?)
+    ");
+    
     $stmt->execute([
-        $_POST['title'],
-        $imagePath,
-        $_POST['description'],
-        $_POST['isbn'],
-        $_POST['author']
+        $data['title'],
+        $data['image'],
+        $data['description'],
+        $data['isbn'],
+        $data['author']
     ]);
+    
     $bookId = $pdo->lastInsertId();
-
     $pdo->commit();
-    echo json_encode([
+    
+    sendResponse([
         'status' => 'success',
         'message' => 'Book added successfully',
-        'id' => $bookId,
-        'image_path' => $imagePath
+        'data' => [
+            'id' => $bookId,
+            'title' => $data['title'],
+            'author' => $data['author'],
+            'isbn' => $data['isbn'],
+            'description' => $data['description'],
+            'image' => $data['image']
+        ]
     ]);
 
 } catch (PDOException $e) {
     $pdo->rollBack();
-    http_response_code(500);
-    echo json_encode(['error' => 'Database error: ' . $e->getMessage()]);
+    error_log('Database error: ' . $e->getMessage());
+    sendResponse(['error' => 'Database error: ' . $e->getMessage()], 500);
 } catch (Exception $e) {
     $pdo->rollBack();
-    http_response_code(500);
-    echo json_encode(['error' => $e->getMessage()]);
+    error_log('Error adding book: ' . $e->getMessage());
+    sendResponse(['error' => 'Failed to add book: ' . $e->getMessage()], 500);
 }

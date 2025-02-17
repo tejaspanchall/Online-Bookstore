@@ -1,9 +1,14 @@
 <?php
 require_once '../../config/database.php';
+require_once __DIR__ . '/../../vendor/autoload.php';
+use Dotenv\Dotenv;
+
+$dotenv = Dotenv::createImmutable(__DIR__ . '/../../');
+$dotenv->load();
 
 session_start();
 
-header('Access-Control-Allow-Origin: http://localhost:3000');
+header('Access-Control-Allow-Origin: ' . $_ENV['FRONTEND']);
 header('Access-Control-Allow-Methods: POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization');
 header('Access-Control-Allow-Credentials: true');
@@ -24,7 +29,6 @@ foreach ($required as $field) {
     }
 }
 
-// Validate role
 if (!in_array($data['role'], ['teacher', 'student'])) {
     http_response_code(400);
     echo json_encode(['error' => 'Invalid role']);

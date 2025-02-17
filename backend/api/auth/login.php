@@ -1,9 +1,15 @@
 <?php
 require_once '../../config/database.php';
+require_once __DIR__ . '/../../vendor/autoload.php';
+
+use Dotenv\Dotenv;
+
+$dotenv = Dotenv::createImmutable(__DIR__ . '/../../');
+$dotenv->load();
 
 session_start();
 
-header('Access-Control-Allow-Origin: http://localhost:3000');
+header('Access-Control-Allow-Origin: ' . $_ENV['FRONTEND']);
 header('Access-Control-Allow-Methods: POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization');
 header('Access-Control-Allow-Credentials: true');
@@ -32,6 +38,7 @@ try {
         session_regenerate_id(true);
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['user_email'] = $user['email'];
+        $_SESSION['user_role'] = $user['role'];
 
         echo json_encode([
             'status' => 'success',
@@ -39,7 +46,8 @@ try {
                 'id' => $user['id'],
                 'email' => $user['email'],
                 'firstname' => $user['firstname'],
-                'lastname' => $user['lastname']
+                'lastname' => $user['lastname'],
+                'role' => $user['role']
             ]
         ]);
     } else {

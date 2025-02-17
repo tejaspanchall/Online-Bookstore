@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import AuthForm from './AuthForm';
 
 export default function Login() {
+  const BACKEND = process.env.REACT_APP_BACKEND;
   const navigate = useNavigate();
   const [form, setForm] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
@@ -10,7 +11,7 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch('http://localhost/online-bookstore/backend/api/auth/login.php', {
+      const res = await fetch(`${BACKEND}/auth/login.php`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -31,7 +32,13 @@ export default function Login() {
       
       window.dispatchEvent(new Event('loginStateChange'));
       
-      navigate('/catalog');
+      if (data.user.role === 'teacher') {
+        navigate('/catalog');
+      } else if (data.user.role === 'student') {
+        navigate('/catalog');
+      } else {
+        navigate('/my-library');
+      }
       
     } catch (error) {
       setError('Failed to connect to server');
