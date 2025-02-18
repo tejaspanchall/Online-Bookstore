@@ -7,6 +7,7 @@ export default function Navbar() {
   const navigate = useNavigate();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userRole, setUserRole] = useState(null);
+  const [userName, setUserName] = useState(null);
 
   useEffect(() => {
     const checkAuth = () => {
@@ -15,6 +16,7 @@ export default function Navbar() {
         const user = JSON.parse(userData);
         setIsLoggedIn(true);
         setUserRole(user.role);
+        setUserName(user);
       } else {
         setIsLoggedIn(false);
         setUserRole(null);
@@ -75,11 +77,13 @@ export default function Navbar() {
           <ul className="navbar-nav ms-auto align-items-center gap-3">
             {isLoggedIn ? (
               <>
-                <li className="nav-item">
+                {userName && (
+                  <li className="nav-item">
                   <NavLink to="/my-library" className="nav-link d-flex align-items-center gap-1">
-                    <PersonFill /> My Library
+                    <PersonFill /> {userName.firstname}'s Library
                   </NavLink>
                 </li>
+                )}
                 {userRole === 'teacher' && (
                   <li className="nav-item">
                     <NavLink to="/add-book" className="btn btn-primary d-flex align-items-center gap-1">
