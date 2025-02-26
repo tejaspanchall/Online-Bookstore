@@ -1,6 +1,5 @@
 # BookCafe: Online Bookstore
-![image](https://github.com/user-attachments/assets/1f3a54ff-38d9-474c-820d-8ff47e000b33)
-
+![image](https://github.com/user-attachments/assets/0008ea33-aa27-4aa0-904c-2a2030da95b8)
 
 ## Features
 
