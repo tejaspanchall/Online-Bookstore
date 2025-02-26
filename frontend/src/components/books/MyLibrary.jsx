@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 import BookCard from "./BookCard";
 import Pagination from "./Pagination";
 
@@ -71,6 +72,19 @@ export default function MyLibrary() {
           return;
         }
         setError(error.message || "Failed to fetch library. Please try again later.");
+        
+        // Show SweetAlert2 error notification
+        Swal.fire({
+          title: 'Error',
+          text: error.message || "Failed to fetch library. Please try again later.",
+          icon: 'error',
+          confirmButtonText: 'Try Again',
+          confirmButtonColor: 'var(--color-button-primary)'
+        }).then((result) => {
+          if (result.isConfirmed) {
+            window.location.reload();
+          }
+        });
       } finally {
         setLoading(false);
       }
@@ -82,9 +96,15 @@ export default function MyLibrary() {
   if (loading) {
     return (
       <div className="container py-5">
-        <div className="d-flex justify-content-center align-items-center" style={{ minHeight: "200px" }}>
-          <div className="spinner-border text-primary" role="status">
-            <span className="visually-hidden">Loading...</span>
+        <div className="flex justify-center items-center min-h-[200px]">
+          <div 
+            className="w-12 h-12 border-4 rounded-full animate-spin"
+            style={{ 
+              borderColor: 'var(--color-border)',
+              borderTopColor: 'var(--color-primary)'
+            }}
+          >
+            <span className="sr-only">Loading...</span>
           </div>
         </div>
       </div>
@@ -92,18 +112,23 @@ export default function MyLibrary() {
   }
 
   if (error) {
+    // We'll still render a minimal error state in the UI
+    // but the main error notification is now handled by SweetAlert2
     return (
       <div className="container py-5">
-        <div className="alert alert-danger" role="alert">
-          <div className="d-flex flex-column align-items-center">
-            <p className="mb-3">{error}</p>
-            <button 
-              className="btn btn-primary" 
-              onClick={() => window.location.reload()}
-            >
-              Try Again
-            </button>
-          </div>
+        <div className="text-center py-5">
+          <button 
+            className="px-4 py-2 rounded transition duration-300"
+            style={{ 
+              backgroundColor: 'var(--color-button-primary)',
+              color: 'var(--color-bg-primary)'
+            }}
+            onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'var(--color-button-hover)'}
+            onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'var(--color-button-primary)'}
+            onClick={() => window.location.reload()}
+          >
+            Reload Page
+          </button>
         </div>
       </div>
     );
@@ -111,27 +136,65 @@ export default function MyLibrary() {
 
   return (
     <div className="container py-5">
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <h2>My Library</h2>
-        <button className="btn btn-primary" onClick={() => navigate("/")}>
+      <div className="flex justify-between items-center mb-4">
+        <h2 
+          className="text-2xl font-bold"
+          style={{ color: 'var(--color-text-primary)' }}
+        >
+          My Library
+        </h2>
+        <button 
+          className="px-4 py-2 rounded transition duration-300"
+          style={{ 
+            backgroundColor: 'var(--color-button-primary)',
+            color: 'var(--color-bg-primary)'
+          }}
+          onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'var(--color-button-hover)'}
+          onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'var(--color-button-primary)'}
+          onClick={() => navigate("/")}
+        >
           Browse More Books
         </button>
       </div>
 
       {allBooks.length === 0 ? (
         <div className="text-center py-5">
-          <p className="text-muted mb-4">Your library is empty</p>
-          <div className="d-flex justify-content-center">
-            <button className="btn btn-lg btn-primary" onClick={() => navigate("/")}>
+          <p style={{ color: 'var(--color-text-light)' }} className="mb-4">Your library is empty</p>
+          <div className="flex justify-center">
+            <button 
+              className="px-6 py-3 text-lg rounded transition duration-300"
+              style={{ 
+                backgroundColor: 'var(--color-button-primary)',
+                color: 'var(--color-bg-primary)'
+              }}
+              onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'var(--color-button-hover)'}
+              onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'var(--color-button-primary)'}
+              onClick={() => {
+                Swal.fire({
+                  title: 'Library Empty',
+                  text: 'Would you like to browse our collection to add books to your library?',
+                  icon: 'info',
+                  showCancelButton: true,
+                  confirmButtonText: 'Yes, browse books',
+                  cancelButtonText: 'No, thanks',
+                  confirmButtonColor: 'var(--color-button-primary)',
+                  cancelButtonColor: 'var(--color-button-secondary)'
+                }).then((result) => {
+                  if (result.isConfirmed) {
+                    navigate("/");
+                  }
+                });
+              }}
+            >
               Discover Books
             </button>
           </div>
         </div>
       ) : (
         <>
-          <div className="row row-cols-1 row-cols-md-2 row-cols-xl-5 g-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-6 gap-10">
             {displayedBooks.map((book) => (
-              <div className="col" key={book.id}>
+              <div key={book.id}>
                 <BookCard
                   book={book}
                   onClick={() => navigate(`/book/${book.id}`)}

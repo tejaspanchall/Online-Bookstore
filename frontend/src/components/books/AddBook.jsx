@@ -1,5 +1,6 @@
 import { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Swal from 'sweetalert2';
 import AuthForm from '../auth/AuthForm';
 import { AuthContext } from '../context/AuthContext';
 
@@ -15,14 +16,10 @@ export default function AddBook() {
     isbn: '',
     author: '',
   });
-  const [message, setMessage] = useState('');
-  const [isError, setIsError] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setMessage('');
-    setIsError(false);
     setIsLoading(true);
     
     try {
@@ -63,13 +60,23 @@ export default function AddBook() {
         throw new Error(data.error || 'Failed to add book');
       }
 
-      const data = await res.json();
-      setMessage('Book added successfully!');
-      setIsError(false);
-      setTimeout(() => navigate('/catalog'), 1500);
+      await res.json();
+      
+      Swal.fire({
+        title: 'Success!',
+        text: 'Book added successfully!',
+        icon: 'success',
+        confirmButtonColor: 'var(--color-button-primary)'
+      }).then(() => {
+        navigate('/catalog');
+      });
     } catch (error) {
-      setMessage(error.message || 'Failed to connect to server');
-      setIsError(true);
+      Swal.fire({
+        title: 'Error!',
+        text: error.message || 'Failed to connect to server',
+        icon: 'error',
+        confirmButtonColor: 'var(--color-button-primary)'
+      });
     } finally {
       setIsLoading(false);
     }
@@ -84,7 +91,12 @@ export default function AddBook() {
       <div className="mb-3">
         <input
           type="text"
-          className="form-control bg-dark text-white"
+          className="w-full p-2 bg-white rounded border focus:outline-none"
+          style={{ 
+            color: 'var(--color-text-primary)',
+            borderColor: 'var(--color-border)',
+            borderWidth: '1px',
+          }}
           placeholder="Title"
           value={book.title}
           onChange={(e) => setBook({ ...book, title: e.target.value })}
@@ -94,7 +106,12 @@ export default function AddBook() {
       <div className="mb-3">
         <input
           type="url"
-          className="form-control bg-dark text-white"
+          className="w-full p-2 bg-white rounded border focus:outline-none"
+          style={{ 
+            color: 'var(--color-text-primary)',
+            borderColor: 'var(--color-border)',
+            borderWidth: '1px',
+          }}
           placeholder="Image URL"
           value={book.image}
           onChange={(e) => setBook({ ...book, image: e.target.value })}
@@ -103,7 +120,12 @@ export default function AddBook() {
       </div>
       <div className="mb-3">
         <textarea
-          className="form-control bg-dark text-white"
+          className="w-full p-2 bg-white rounded border focus:outline-none"
+          style={{ 
+            color: 'var(--color-text-primary)',
+            borderColor: 'var(--color-border)',
+            borderWidth: '1px',
+          }}
           placeholder="Description"
           value={book.description}
           onChange={(e) => setBook({ ...book, description: e.target.value })}
@@ -114,7 +136,12 @@ export default function AddBook() {
       <div className="mb-3">
         <input
           type="text"
-          className="form-control bg-dark text-white"
+          className="w-full p-2 bg-white rounded border focus:outline-none"
+          style={{ 
+            color: 'var(--color-text-primary)',
+            borderColor: 'var(--color-border)',
+            borderWidth: '1px',
+          }}
           placeholder="ISBN"
           value={book.isbn}
           onChange={(e) => setBook({ ...book, isbn: e.target.value })}
@@ -124,7 +151,12 @@ export default function AddBook() {
       <div className="mb-3">
         <input
           type="text"
-          className="form-control bg-dark text-white"
+          className="w-full p-2 bg-white rounded border focus:outline-none"
+          style={{ 
+            color: 'var(--color-text-primary)',
+            borderColor: 'var(--color-border)',
+            borderWidth: '1px',
+          }}
           placeholder="Author"
           value={book.author}
           onChange={(e) => setBook({ ...book, author: e.target.value })}
@@ -133,16 +165,17 @@ export default function AddBook() {
       </div>
       <button 
         type="submit" 
-        className="btn btn-primary w-100 py-2"
+        className="w-full py-2 rounded transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+        style={{ 
+          backgroundColor: isLoading ? 'var(--color-text-light)' : 'var(--color-button-primary)',
+          color: 'var(--color-bg-primary)', 
+        }}
+        onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'var(--color-button-hover)'}
+        onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'var(--color-button-primary)'}
         disabled={isLoading}
       >
         {isLoading ? 'Adding Book...' : 'Add Book'}
       </button>
-      {message && (
-        <div className={`mt-3 alert ${isError ? 'alert-danger' : 'alert-success'}`}>
-          {message}
-        </div>
-      )}
     </AuthForm>
   );
 }

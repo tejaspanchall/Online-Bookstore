@@ -1,6 +1,3 @@
-import 'bootstrap/dist/css/bootstrap.min.css';
-import 'bootstrap/dist/js/bootstrap.bundle.min';
-import './custom.css';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import Navbar from './components/Navbar';
@@ -13,11 +10,12 @@ import AddBook from './components/books/AddBook';
 import ResetPassword from './components/auth/ResetPassword';
 import BookDetail from './components/books/BookDetail';
 import { AuthProvider } from './components/context/AuthContext';
+import EditBook from './components/books/EditBook';
 
 export default function App() {
   return (
     <AuthProvider>
-      <div className="min-h-screen bg-gray-900 text-gray-100">
+      <div className="min-h-screen bg-[var--color-bg-primary] text-black-100">
         <BrowserRouter>
           <Navbar />
           <div className="container mx-auto px-4 py-8">
@@ -31,6 +29,7 @@ export default function App() {
               <Route path="/add-book" element={<AddBook />} />
               <Route path="/my-library" element={<MyLibrary />} />
               <Route path="/book/:id" element={<BookDetail />} />
+              <Route path="/book/:id/edit" element={<EditBook />} />
             </Routes>
           </div>
           <Toaster position="bottom-right" toastOptions={{ className: 'bg-gray-800 text-white' }} />
